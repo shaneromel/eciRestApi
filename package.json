@@ -1,0 +1,21 @@
+{
+  "name": "election-rest",
+  "version": "1.0.0",
+  "description": "REST API for election",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shane",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "firebase-admin": "^7.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "md5": "^2.2.1",
+    "mysql": "^2.16.0",
+    "redis": "^2.8.0"
+  }
+}
