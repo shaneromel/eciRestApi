@@ -141,7 +141,7 @@ function dateToTimestamp(date, time){
 
     const convertedTime=timeConverter(formattedTime);
 
-    const formattedDate=new Date(dateArray[2], dateArray[1], dateArray[0], convertedTime.hour, convertedTime.min, 0);
+    const formattedDate=new Date(dateArray[2], dateArray[0], dateArray[1], convertedTime.hour, convertedTime.min, 0);
 
     return formattedDate.getTime();
 
