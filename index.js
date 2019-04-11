@@ -6,6 +6,10 @@ var cors=require("cors");
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use("/api", require("./api/index"))
+app.use("/api", require("./api/index"));
+
+app.get("/", (req, res)=>{
+    res.send("Election REST")
+})
 
 app.listen(3000);
