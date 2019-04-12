@@ -75,12 +75,14 @@ router.post("/creategroup", (req, res)=>{ //name
 //uid, group_title
 router.post("/adduser", (req,res)=>{
     const data=req.body;
-    let query = "INSERT INTO group_"+data.title+" (uid) VALUES ('"+data.uid+"')";
+    let query = "INSERT INTO group_"+data.group_title+" (uid) VALUES ('"+data.uid+"')";
     db.query(query, [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
         }
+
+        res.send({code:"success"})
 
     })
 });
