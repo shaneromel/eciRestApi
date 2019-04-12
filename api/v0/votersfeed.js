@@ -14,9 +14,9 @@ router.get("/", (req, res)=>{
         res.send({code:"error", message:"Limit should be supplied with offset"});
         return;
     }else if(!offset&&limit){
-        query=`SELECT * FROM voters_feed LIMIT ${limit}`;
+        query=`SELECT id,name,image,timestamp FROM voters_feed  WHERE isactive = 1 LIMIT ${limit} ORDER BY timestamp DESC`;
     }else{
-        query="SELECT * FROM voters_feed WHERE isactive = 1 ORDER BY timestamp DESC";
+        query="SELECT id,name,image,timestamp FROM voters_feed WHERE isactive = 1 ORDER BY timestamp DESC";
     }
 
     db.query(query, [], (err, results, fields)=>{
@@ -42,6 +42,7 @@ router.get("/", (req, res)=>{
 router.get("/:id", (req, res)=>{
     const limit=req.query.limit;
     const offset=req.query.offset;
+    const id = req.param.id;
     let query;
     const requestType=req.headers['request-type'];
     db.query("SELECT (id, name, image, timestamp, content) FROM voters_feed WHERE id = ? AND isactive = 1", [id], (err, results, fields)=>{
