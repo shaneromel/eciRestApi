@@ -26,6 +26,30 @@ router.get("/", (req, res)=>{
     })
 });
 
+router.delete("/", (req, res)=>{
+    let query;
+    let query2;
+    const data = req.body;
+    const requestType = req.headers['request-type'];
+    query = "DROP TABLE "+"group_"+data.title ;
+    db.query(query,[], (err,results, fields)=>{
+        if(err){
+            res.send({code:"error" ,  message: "No such group exists"});
+            return;
+        }
+        query2 = "DELETE * FROM groups where title='"+data.title+"='";
+        db.query(query2, [], (err, results, fields)=>{
+            if(err){
+                res.send({code:"error", message:err.message});
+                return;
+            }
+
+            res.send({code:"success"});
+
+        })
+    })
+});
+
 router.post("/creategroup", (req, res)=>{ //name
     const data=req.body;
     let query = "CREATE TABLE "+"group_"+data.title+" (id int(11) auto_increment, uid varchar(50) not null, primary key(id))";
