@@ -9,7 +9,7 @@ router.get("/", (req, res)=>{
     const requestType=req.headers['request-type'];
 
     if(limit&&offset){
-        query=`SELECT * FROM voters_feed LIMIT ${offset},${limit}`;
+        query=`SELECT id,name,image,timestamp FROM voters_feed LIMIT ${offset},${limit}`;
     }else if(!limit&&offset){
         res.send({code:"error", message:"Limit should be supplied with offset"});
         return;
@@ -20,6 +20,31 @@ router.get("/", (req, res)=>{
     }
 
     db.query(query, [], (err, results, fields)=>{
+        if(err){
+            if(requestType==="Android"){
+                res.send([]);
+            }else{
+                res.send({code:"error", message:err.message});
+            }
+            return;
+        }
+
+        if(requestType==="Android"){
+            res.send(results);
+        }else{
+            res.send({code:"success", data:results});
+        }
+
+    })
+
+});
+
+router.get("/:id", (req, res)=>{
+    const limit=req.query.limit;
+    const offset=req.query.offset;
+    let query;
+    const requestType=req.headers['request-type'];
+    db.query("SELECT * FROM voters_feed WHERE id = ?", [id], (err, results, fields)=>{
         if(err){
             if(requestType==="Android"){
                 res.send([]);
