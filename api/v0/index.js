@@ -18,6 +18,7 @@ router.use("/votersfeed", require("./votersfeed"));
 router.use("/members", require("./members"));
 router.use("/groups", require("./groups"));
 router.use("/designations", require("./designations"));
+router.use("/messages", require("./messages"));
 
 router.post("/refresh-token", (req, res)=>{
     res.send({token:req.body.token});
