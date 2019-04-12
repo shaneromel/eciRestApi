@@ -39,10 +39,13 @@ router.get("/vod-feeds", (req, res)=>{
 
 });
 
-router.post("/post", (req,res)=>{
+router.post("/vod", (req,res)=>{
     const data=req.body;
+    const timestamp=Date.now();
+    const date=new Date(timestamp);
+    const dateString=(new Date(date.getFullYear(), date.getMonth(), date.getDate())).toDateString();
 
-    db.query("INSERT INTO voter_of_day_data (name, image, timestamp, content) VALUES (?,?,?,?)", [data.name, data.image, Date.now(), data.content], (err, results, fields)=>{
+    db.query("INSERT INTO voter_of_day_data (name, image, timestamp, content, date_string) VALUES (?,?,?,?,?)", [data.name, data.image, timestamp, data.content, dateString], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
@@ -105,8 +108,8 @@ router.delete("/vod-feed/:id", (req, res)=>{
 
 router.get("/vod", (req, res)=>{
     const requestType=req.headers['request-type'];
-
-    db.query("SELECT * FROM selected_voter ORDER BY date", [], (err, results, fields)=>{
+ 
+    db.query(`SELECT name,image,timestamp,id FROM voter_of_day_data WHERE id IN (SELECT id FROM selected_voter) ORDER BY timestamp DESC`, [], (err, results, fields)=>{
         if(err){
             if(requestType==="Android"){
                 res.send([]);
@@ -117,10 +120,49 @@ router.get("/vod", (req, res)=>{
         }
 
         if(requestType==="Android"){
-            res.send({code:"success", data:results});
+            res.send(results);
         }else{
-            res.send([]);
+            res.send({code:"success", data:results});
         }
+
+    })
+
+});
+
+router.get("/vod/:id", (req, res)=>{
+    const id=req.params.id;
+    const requestType=req.headers['request-type'];
+
+    db.query("SELECT * FROM voter_of_day_data WHERE id = ?", [id], (err, results, fields)=>{
+        if(err){
+            if(requestType==="Android"){
+                res.send([]);
+            }else{
+                res.send({code:"error", message:err.message});
+            }
+            return;
+        }
+
+        if(requestType==="Android"){
+            res.send(results[0]);
+        }else{
+            res.send({code:"success", data:results[0]});
+        }
+
+    })
+
+})
+
+router.get("/today-vod-submissions", (req, res)=>{
+    const date=(new Date()).toDateString();
+
+    db.query("SELECT * FROM voter_of_day_data WHERE date_string = ?", [date], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success", data:results});
 
     })
 

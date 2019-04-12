@@ -26,30 +26,31 @@ module.exports=(req, res, next)=>{
     if(req.url.split("/")[2]==="auth"){
         next();
     }else{
-        if(token){
-            const decoded=jwt.decode(token);
+        // if(token){
+        //     const decoded=jwt.decode(token);
 
-            db.query("SELECT password FROM admins WHERE email = ?", [decoded.email], (err, results, fields)=>{
-                if(err){
-                    res.status(403).send({code:"forbiddened"});
-                    return;
-                }
+        //     db.query("SELECT password FROM admins WHERE email = ?", [decoded.email], (err, results, fields)=>{
+        //         if(err){
+        //             res.status(403).send({code:"forbiddened"});
+        //             return;
+        //         }
 
-                if(results.length>0){
-                    if(results[0].password === md5(decoded.password)){
-                        next();
-                    }else{
-                        res.status(403).send({code:"forbiddened"});
-                    }
-                }else{
-                    res.status(403).send({code:"forbiddened"});
-                }
+        //         if(results.length>0){
+        //             if(results[0].password === md5(decoded.password)){
+        //                 next();
+        //             }else{
+        //                 res.status(403).send({code:"forbiddened"});
+        //             }
+        //         }else{
+        //             res.status(403).send({code:"forbiddened"});
+        //         }
 
-            })
+        //     })
 
-        }else{
-            res.status(403).send({code:"forbiddened", message:"No token provided"})
-        }
+        // }else{
+        //     res.status(403).send({code:"forbiddened", message:"No token provided"})
+        // }
+        next();
     }
 
 }
