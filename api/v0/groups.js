@@ -87,19 +87,18 @@ router.post("/adduser", (req,res)=>{
     })
 });
 
-router.get("/members/:title", (req, res)=>{
-    const title=req.params.title;
 
-    db.query(`SELECT * FROM group_${title}`, [], (err, results, fields)=>{
+//uid, group_title
+router.delete("/removeuser/:grouptitle/:uid",(req, res)=>{
+    const data = req.params;
+    let query = "DELETE FROM group_"+data.group_title+"WHERE uid ='"+data.uid+"'";
+    db.query(query, [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
         }
-
-        res.send({code:"success", data:results});
-
+        res.send({code:"success"})
     })
-
-})
+});
 
 module.exports=router;
