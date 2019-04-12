@@ -26,11 +26,11 @@ router.get("/", (req, res)=>{
     })
 });
 
-router.delete("/", (req, res)=>{
+router.delete("/:title", (req, res)=>{
     let query;
     let query2;
-    const data = req.body;
-    const requestType = req.headers['request-type'];
+    const data = req.params;
+
     query = "DROP TABLE "+"group_"+data.title ;
     db.query(query,[], (err,results, fields)=>{
         if(err){
