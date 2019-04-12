@@ -151,7 +151,7 @@ router.get("/vod/:id", (req, res)=>{
 
     })
 
-})
+});
 
 router.get("/today-vod-submissions", (req, res)=>{
     const date=(new Date()).toDateString();
@@ -163,6 +163,25 @@ router.get("/today-vod-submissions", (req, res)=>{
         }
 
         res.send({code:"success", data:results});
+
+    })
+
+});
+
+router.get("/vod-selected-today", (req, res)=>{
+    const date=(new Date()).toDateString();
+
+    db.query("SELECT COUNT(*) FROM selected_voter WHERE date_string = ?", [date], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        if(results[0]["COUNT(*)"]>0){
+            res.send({code:true});
+        }else{
+            res.send({code:false})
+        }
 
     })
 
