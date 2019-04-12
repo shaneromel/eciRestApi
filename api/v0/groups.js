@@ -87,4 +87,18 @@ router.post("/adduser", (req,res)=>{
     })
 });
 
+
+//uid, group_title
+router.delete("/removeuser/:grouptitle/:uid",(req, res)=>{
+    const data = req.params;
+    let query = "DELETE FROM group_"+data.group_title+"WHERE uid ='"+data.uid+"'";
+    db.query(query, [], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+        res.send({code:"success"})
+    })
+});
+
 module.exports=router;
