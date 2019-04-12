@@ -13,6 +13,7 @@ router.use("/notifications", require("./notifications"));
 router.use("/password", require("./password"));
 router.use("/feedbacks", require("./feedbacks"));
 router.use("/voters", require("./voters"));
+router.use("/rohof" , require("./ro_hof"))
 
 router.post("/refresh-token", (req, res)=>{
     res.send({token:req.body.token});
