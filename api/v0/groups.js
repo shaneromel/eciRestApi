@@ -52,7 +52,7 @@ router.delete("/", (req, res)=>{
 
 router.post("/creategroup", (req, res)=>{ //name
     const data=req.body;
-    let query = "CREATE TABLE "+"group_"+data.title+" (id int(11) auto_increment, uid varchar(50) not null, primary key(id), foreign key (uid) references members(uid))";
+    let query = "CREATE TABLE "+"group_"+data.title+" (id int(11) auto_increment, uid varchar(50) not null, primary key(id), foreign key (uid) references members(uid), CONSTRAINT members_unique UNIQUE (uid))";
     db.query(query, [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
