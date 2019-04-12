@@ -9,14 +9,14 @@ router.get("/vod-feeds", (req, res)=>{
     const requestType=req.headers['request-type'];
 
     if(limit&&offset){
-        query=`SELECT ${requestType==="Android" ? 'name, image, timestamp' : '*'} FROM voter_of_day_data LIMIT ${offset},${limit}`;
+        query=`SELECT * FROM voter_of_day_data LIMIT ${offset},${limit}`;
     }else if(!limit&&offset){
         res.send({code:"error", message:"Limit should be supplied with offset"});
         return;
     }else if(!offset&&limit){
-        query=`SELECT ${requestType==="Android" ? 'name, image, timestamp' : '*'} FROM voter_of_day_data LIMIT ${limit}`;
+        query=`SELECT * FROM voter_of_day_data LIMIT ${limit}`;
     }else{
-        query=`SELECT ${requestType==="Android" ? 'name, image, timestamp' : '*'} FROM voter_of_day_data`;
+        query=`SELECT * FROM voter_of_day_data`;
     }
 
     db.query(query, [], (err, results, fields)=>{
@@ -98,6 +98,29 @@ router.delete("/vod-feed/:id", (req, res)=>{
         }
 
         res.send({code:"success"});
+
+    })
+
+});
+
+router.get("/vod", (req, res)=>{
+    const requestType=req.headers['request-type'];
+
+    db.query("SELECT * FROM selected_voter ORDER BY date", [], (err, results, fields)=>{
+        if(err){
+            if(requestType==="Android"){
+                res.send([]);
+            }else{
+                res.send({code:"error", message:err.message});
+            }
+            return;
+        }
+
+        if(requestType==="Android"){
+            res.send({code:"success", data:results});
+        }else{
+            res.send([]);
+        }
 
     })
 
