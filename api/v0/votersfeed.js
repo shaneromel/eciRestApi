@@ -40,12 +40,10 @@ router.get("/", (req, res)=>{
 });
 
 router.get("/:id", (req, res)=>{
-    const limit=req.query.limit;
-    const offset=req.query.offset;
-    const id = req.param.id;
-    let query;
+    const id = req.params.id;
     const requestType=req.headers['request-type'];
-    db.query("SELECT (id, name, image, timestamp, content) FROM voters_feed WHERE id = ? AND isactive = 1", [id], (err, results, fields)=>{
+
+    db.query("SELECT id,name,image,timestamp,content FROM voters_feed WHERE id = ? AND isactive = 1", [id], (err, results, fields)=>{
         if(err){
             if(requestType==="Android"){
                 res.send([]);
