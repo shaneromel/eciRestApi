@@ -118,6 +118,51 @@ router.post("/update/:id", (req, res)=>{
 
     })
 
+});
+
+router.get("/interested-count/:id", (req, res)=>{
+    const id=req.params.id;
+
+    db.query("SELECT COUNT(*) FROM interested WHERE event_id = ?", [id], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success", count:results[0]["COUNT(*)"]});
+
+    })
+
+});
+
+// router.post("/interested", (req, res)=>{
+//     const data=req.body;
+
+//     db.query("INSERT INTO interested (event_id, device_id) VALUES (?,?)", [data.event_id, data.device_id], (err, results, fields)=>{
+//         if(err){
+//             res.send({code:"error", message:err.message});
+//             return;
+//         }
+
+//         res.send({code:"success"});
+
+//     })
+
+// });
+
+router.post("/interested", (req, res)=>{
+    const id=req.body.id, data=req.body;
+
+    db.query(`UPDATE events SET interested = interested + ${data.interested}, not_interested = not_interested + ${data.not_interested} WHERE id = ?`, [id], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success"});
+
+    })
+
 })
 
 router.delete("/delete/:id", (req, res)=>{

@@ -14,7 +14,8 @@ router.use("/password", require("./password"));
 router.use("/feedbacks", require("./feedbacks"));
 router.use("/voters", require("./voters"));
 router.use("/rohof" , require("./ro_hof"))
-router.use("/votersfeed", require("./votersfeed"))
+router.use("/votersfeed", require("./votersfeed"));
+router.use("/members", require("./members"));
 
 router.post("/refresh-token", (req, res)=>{
     res.send({token:req.body.token});
