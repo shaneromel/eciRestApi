@@ -37,7 +37,7 @@ router.delete("/", (req, res)=>{
             res.send({code:"error" ,  message: "No such group exists"});
             return;
         }
-        query2 = "DELETE * FROM groups where title='"+data.title+"='";
+        query2 = "DELETE * FROM groups where title='"+data.title+"'";
         db.query(query2, [], (err, results, fields)=>{
             if(err){
                 res.send({code:"error", message:err.message});
