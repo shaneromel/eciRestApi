@@ -101,4 +101,19 @@ router.delete("/removeuser/:grouptitle/:uid",(req, res)=>{
     })
 });
 
+router.get("/members/:title", (req, res)=>{
+    const title=req.params.title;
+
+    db.query(`SELECT * FROM group_${title}`, [], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success", data:results});
+
+    })
+
+})
+
 module.exports=router;

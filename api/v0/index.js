@@ -17,6 +17,7 @@ router.use("/rohof" , require("./ro_hof"))
 router.use("/votersfeed", require("./votersfeed"));
 router.use("/members", require("./members"));
 router.use("/groups", require("./groups"));
+router.use("/designations", require("./designations"));
 
 router.post("/refresh-token", (req, res)=>{
     res.send({token:req.body.token});
