@@ -28,8 +28,8 @@ router.get("/", (req, res)=>{
 
 router.post("/creategroup", (req, res)=>{ //name
     const data=req.body;
-    let query = "CREATE TABLE "+"group_? (id int(11) auto_increment, uid varchar(50) not null, primary key(id)); INSERT INTO groups (title) VALUES (?); ";
-    db.query(query, [data.title, data.title], (err, results, fields)=>{
+    let query = "CREATE TABLE "+"group_"+data.title+" (id int(11) auto_increment, uid varchar(50) not null, primary key(id)); INSERT INTO groups (title) VALUES (?); ";
+    db.query(query, [data.title], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
