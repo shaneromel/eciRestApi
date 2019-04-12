@@ -27,6 +27,21 @@ router.get("/", (req, res)=>{
         res.send({code:"success", data:results});
 
     })
+});
+
+router.get("/:uid", (req, res)=>{
+    const uid=req.params.uid;
+
+    db.query("SELECT * FROM members WHERE uid = ? ORDER BY name", [uid], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send(results[0]);
+
+    })
+
 })
 
 module.exports=router;
