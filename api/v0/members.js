@@ -1,11 +1,12 @@
 var express=require("express");
 var router=express.Router();
 var db=require("../../utils/db");
+var uniqid=require("uniqid");
 
 router.post("/", (req, res)=>{
     const data=req.body;
 
-    db.query("INSERT INTO members (uid, name, designation, image, email) VALUES (?,?,?,?,?)", [data.uid, data.name, data.designation, data.image, data.email], (err, results, fields)=>{
+    db.query("INSERT INTO members (uid, name, designation, image, email, phone) VALUES (?,?,?,?,?,?)", [uniqid(), data.name, data.designation, data.image, data.email, data.phone ? data.phone : '-'], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
@@ -39,6 +40,21 @@ router.get("/:uid", (req, res)=>{
         }
 
         res.send(results[0]);
+
+    })
+
+});
+
+router.get("/by-designation/:designation", (req, res)=>{
+    const designation=req.params.designation;
+
+    db.query("SELECT * FROM members WHERE designation = ?", [designation], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success", data:results});
 
     })
 

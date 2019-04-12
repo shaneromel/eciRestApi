@@ -63,6 +63,12 @@ router.get("/get", (req, res)=>{
             return;
         }
 
+        results=results.map(a=>{
+            a.images=a.ps_image.split(",");
+            delete a.ps_image;
+            return a;
+        });
+
         if(requestType === "Android") {
             res.send(results);
         } else {
