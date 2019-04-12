@@ -56,7 +56,7 @@ router.delete("/all/:group_title",(req,res)=>{
 router.delete("/lastmessage/:group_title", (req,res)=>{
     const group_title = req.params.group_title;
     let query;
-    query = "DELETE FROM group_"+group_title+" ORDER BY id DESC LIMIT 1";
+    query = "DELETE FROM messages WHERE group_title='"+group_title+"' ORDER BY id DESC LIMIT 1";
     db.query(query, [], (err, results, fields)=>{
         if(err){
             res.send({code: "error", message: err.message});
