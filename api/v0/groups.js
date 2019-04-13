@@ -5,7 +5,6 @@ var db=require("../../utils/db");
 router.get("/", (req, res)=>{
     let query;
     const requestType=req.headers['request-type'];
-
     query = "SELECT * FROM groups;"
 
     db.query(query, [], (err, results, fields)=>{
@@ -82,7 +81,15 @@ router.post("/adduser", (req,res)=>{
             return;
         }
 
-        res.send({code:"success"})
+        db.query("INSERT INTO members (groups_in) VALUES ( CONCAT(groups_in, ',' , ?) )", [data.group_title], (err, results, fields)=>{
+            if(err){
+                res.send({code:"error", message:err.message});
+                return;
+            }
+
+            res.send({code:"success"});
+
+        })
 
     })
 });
@@ -115,5 +122,4 @@ router.get("/members/:title", (req, res)=>{
     })
 
 })
-
 module.exports=router;
