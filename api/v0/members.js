@@ -100,4 +100,16 @@ router.get("/by-designation/:designation", (req, res)=>{
 
 })
 
+
+router.get("/groups", (req, res)=>{
+    const data = req.body;
+    db.query("SELECT * from members WHERE uid = ?",[data.uid], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+        res.send({code:"success", data: results});
+    })    
+})
+
 module.exports=router;
