@@ -32,22 +32,34 @@ router.delete("/:title", (req, res)=>{
     const data = req.params;
 
     query = "DROP TABLE "+"group_"+data.title ;
-    db.query(query,[], (err,results, fields)=>{
-        if(err){
-            res.send({code:"error" ,  message: "No such group exists"});
-            return;
-        }
-        query2 = "DELETE FROM groups where title='"+data.title+"'";
+    query2 = "DELETE FROM groups where title='"+data.title+"'";
+
+    let promises=[new Promise((resolve, reject)=>{
+        db.query(query,[], (err,results, fields)=>{
+            if(err){
+                reject(err)
+                return;
+            }
+            resolve()
+        })
+    }), new Promise((resolve, reject)=>{
         db.query(query2, [], (err, results, fields)=>{
             if(err){
-                res.send({code:"error", message:err.message});
+                reject(err);
                 return;
             }
 
-            res.send({code:"success"});
+            resolve();
 
         })
+    })];
+
+    Promise.all(promises).then(()=>{
+        res.send({code:"success"});
+    }).catch(err=>{
+        res.send({code:"error", message:err.message})
     })
+
 });
 
 router.post("/creategroup", (req, res)=>{ //name

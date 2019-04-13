@@ -117,6 +117,29 @@ router.delete("/question/:id/:assessment_name", (req, res)=>{
 
     })
 
+});
+
+router.delete("/:assessment_name", (req, res)=>{
+    const assessmentName=req.params.assessment_name;
+
+    db.query("DELETE FROM assesments WHERE assesment_name = ?", [assessmentName], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        db.query(`DROP TABLE assesment_${assessmentName}`, [], (err, results, fields)=>{
+            if(err){
+                res.send({code:"error", message:err.message});
+                return;
+            }
+
+            res.send({code:"success"});
+
+        })
+
+    })
+
 })
 
 module.exports = router;
