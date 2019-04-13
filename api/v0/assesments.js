@@ -49,4 +49,19 @@ router.post("/addquestion", (req, res)=>{
 
 });
 
+router.get("/questions/:assessment_name", (req, res)=>{
+    const assessmentName=req.params.assessment_name;
+
+    db.query(`SELECT * FROM assesment_${assessmentName}`, [], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success", data:results});
+
+    })
+
+})
+
 module.exports = router;
