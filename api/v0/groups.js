@@ -93,7 +93,7 @@ router.post("/adduser", (req,res)=>{
             return;
         }
 
-        db.query("INSERT INTO members (groups_in) VALUES ( CONCAT(groups_in, ',' , ?) )", [data.group_title], (err, results, fields)=>{
+        db.query("UPDATE members SET groups_in = CONCAT(groups_in , '"+","+data.group_title+"') WHERE uid = ?", [data.uid], (err, results, fields)=>{
             if(err){
                 res.send({code:"error", message:err.message});
                 return;

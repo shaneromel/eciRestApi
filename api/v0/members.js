@@ -4,8 +4,8 @@ var db=require("../../utils/db");
 var uniqid=require("uniqid");
 let AWS = require("aws-sdk");
 AWS.config.update({
-    accessKeyId: "AKIAQ4X7IP6B4YQ66AEW",
-    secretAccessKey: "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",
+    accessKeyId: "AKIAQ4X7IP6B6755ETPK",
+    secretAccessKey: "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",
     region: "ap-south-1"
 });
 
@@ -43,7 +43,7 @@ router.post("/", (req, res)=>{
         if(error){
             res.send({code:"error", message:error.message})
         }else{
-            db.query("INSERT INTO members (uid, name, designation, image, email, phone) VALUES (?,?,?,?,?,?)", [uniqid(), data.name, data.designation, data.image, data.email, data.phone ? data.phone : '-'], (err, results, fields)=>{
+            db.query("INSERT INTO members (uid, name, designation, image, email, phone, groups_in) VALUES (?,?,?,?,?,?,'')", [uniqid(), data.name, data.designation, data.image, data.email, data.phone ? data.phone : '-'], (err, results, fields)=>{
                 if(err){
                     res.send({code:"error", message:err.message});
                     return;
@@ -101,9 +101,9 @@ router.get("/by-designation/:designation", (req, res)=>{
 })
 
 
-router.get("/groups", (req, res)=>{
-    const data = req.body;
-    db.query("SELECT * from members WHERE uid = ?",[data.uid], (err, results, fields)=>{
+router.get("/groups/:uid", (req, res)=>{
+    const uid = req.params.uid;
+    db.query("SELECT * from members WHERE uid = ?",[uid], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
