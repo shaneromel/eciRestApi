@@ -34,4 +34,19 @@ router.get("/", (req, res)=>{
     })
 });
 
+//assesment_name question opt1 opt2 opt3 opt4 correct_opt
+router.post("/addquestion", (req, res)=>{
+    const data = req.body;
+    let query ;
+    query = "INSERT INTO assesment_"+data.assesment_name+" (question, opt1, opt2, opt3, opt4, correct_opt) VALUES (?,?,?,?,?,?)";
+    db.query(query, [data.question, data.opt1, data.opt2, data.opt3, data.opt4, data.ro], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message: err.message});
+            return;
+        }
+        res.send({code: "success"})
+    })
+
+});
+
 module.exports = router;
