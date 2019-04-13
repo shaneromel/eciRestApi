@@ -62,6 +62,6 @@ router.get("/questions/:assessment_name", (req, res)=>{
 
     })
 
-})
+});
 
 module.exports = router;
