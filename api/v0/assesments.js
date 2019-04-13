@@ -62,6 +62,30 @@ router.get("/questions/:assessment_name", (req, res)=>{
 
     })
 
-})
+});
+
+//uid assesment_name question_id selected
+router.post("/validate", (req,res)=>{
+    const data = req.body;
+    const user = data.user;
+    const assesment_name = data.assesment_name;
+    const responses = data.response;
+    var correct_options;
+    db.query("SELECT id, correct_opt FROM assesment_"+assesment_name, [], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+        }
+        correct_options = results;
+    });
+    console.log(correct_options);
+    // for (var questions in responses) {
+    //     if (data.hasOwnProperty(questions)) {
+    //         var each_question = data[questions];
+    //         var question = each_question.question;
+    //         var selected_answer = each_question.opt_selected;
+    //     }
+    // }
+    res.send({code:"success"})
+});
 
 module.exports = router;
