@@ -2,19 +2,59 @@ var express=require("express");
 var router=express.Router();
 var db=require("../../utils/db");
 var uniqid=require("uniqid");
+let AWS = require("aws-sdk");
+AWS.config.update({
+    accessKeyId: "AKIAQ4X7IP6B4YQ66AEW",
+    secretAccessKey: "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",
+    region: "ap-south-1"
+});
 
 router.post("/", (req, res)=>{
     const data=req.body;
 
-    db.query("INSERT INTO members (uid, name, designation, image, email, phone) VALUES (?,?,?,?,?,?)", [uniqid(), data.name, data.designation, data.image, data.email, data.phone ? data.phone : '-'], (err, results, fields)=>{
-        if(err){
-            res.send({code:"error", message:err.message});
-            return;
+    const COGNITO_CLIENT = new AWS.CognitoIdentityServiceProvider({
+        apiVersion: "2016-04-19",
+        region: "ap-south-1"
+      });
+    
+    
+      var poolData = {
+        UserPoolId: "ap-south-1_qUHQBbEJ4",
+        Username: data.email,
+        DesiredDeliveryMediums: ["EMAIL"],
+        TemporaryPassword: "Abc@123456",
+        UserAttributes: [
+          {
+            Name: "email",
+            Value: data.email
+          },
+          {
+            Name: "name",
+            Value: data.name
+          },
+          {
+            Name: "email_verified",
+            Value: "true"
+          }
+        ]
+      };
+      COGNITO_CLIENT.adminCreateUser(poolData, (error, response) => {
+        
+        if(error){
+            res.send({code:"error", message:error.message})
+        }else{
+            db.query("INSERT INTO members (uid, name, designation, image, email, phone) VALUES (?,?,?,?,?,?)", [uniqid(), data.name, data.designation, data.image, data.email, data.phone ? data.phone : '-'], (err, results, fields)=>{
+                if(err){
+                    res.send({code:"error", message:err.message});
+                    return;
+                }
+        
+                res.send({code:"success"});
+        
+            })
         }
 
-        res.send({code:"success"});
-
-    })
+      });
 
 });
 
