@@ -35,6 +35,24 @@ router.get("/", (req, res)=>{
     })
 });
 
+router.get("/:group_title", (req, res)=>{
+    const group_title = req.params.group_title;
+    let query;
+    const requestType=req.headers["request-type"];
+    query = "SELECT * FROM assesments WHERE group_title = ?";
+    db.query(query, [group_title], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+        if(requestType === "Android") {
+            res.send(results);
+        } else {
+            res.send({code:"success", data:results});
+        }
+    });
+})
+
 //assesment_name question opt1 opt2 opt3 opt4 correct_opt
 router.post("/addquestion", (req, res)=>{
     const data = req.body;
