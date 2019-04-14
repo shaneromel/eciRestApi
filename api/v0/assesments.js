@@ -71,14 +71,17 @@ router.post("/addquestion", (req, res)=>{
 
 router.get("/questions/:assessment_name", (req, res)=>{
     const assessmentName=req.params.assessment_name.replace(" ","_");
-
+    const requestType=req.headers['request-type'];
     db.query(`SELECT * FROM assesment_${assessmentName}`, [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
         }
-
-        res.send({code:"success", data:results});
+        if(requestType==="Android"){
+            res.send(results);
+        }else{
+            res.send({code:"success", data:results});
+        }
 
     })
 
@@ -139,7 +142,6 @@ router.delete("/question/:id/:assessment_name", (req, res)=>{
             res.send({code:"error", message:err.message});
             return;
         }
-
         res.send({code:"success"});
 
     })

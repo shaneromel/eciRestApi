@@ -38,18 +38,27 @@ router.get("/:thread_id", (req,res)=>{
     })
 });
 
-router.delete("/:thread_id/:uid", (req,res)=>{
+//uid //topic
+router.post("/", (req,res)=>{
+    const data = req.body;
+    const uid = data.uid;
+    const topic = data.topic;
     let query;
-    const thread_id = req.params.thread_id;
-    const uid = req.params.uid;
-    db.query("SELECT * FROM discussion where ", (err, results, fields)=>{
+    db.query("SELECT name FROM members WHERE uid = ? ", [uid], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
         }
-
+        const name = results[0].name;
+        db.query("INSERT INTO discussion (opened_by, topic, name_opened_by) VALUES (?,?,?)",[data.uid, data.topic, name],(err,results,fields)=>{
+            if(err){
+                res.send({code:"error", message:err.message});
+                return;
+            }
+            res.send({code:"success"});
+        })
     })
-})
+});
 
 
 
