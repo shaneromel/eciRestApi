@@ -138,7 +138,7 @@ router.post("/adduser", (req,res)=>{
 //uid, group_title
 router.delete("/removeuser/:grouptitle/:uid",(req, res)=>{
     const data = req.params;
-    const table_name = data.group_title.replace(" ", "_");
+    const table_name = data.grouptitle.replace(" ", "_");
     let query = "DELETE FROM group_"+table_name+" WHERE uid ='"+data.uid+"'";
     db.query(query, [], (err, results, fields)=>{
         if(err){
