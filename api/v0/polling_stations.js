@@ -10,7 +10,7 @@ redisClient.on("error", err=>{
 
 router.post("/add", (req, res)=>{
     const data=req.body;
-
+    console.log(data)
     if(data.start_time<data.end_time){
         db.query("INSERT INTO pollig_stations (title, pincode, start_time, end_time, phone, address, location, blo_name, blo_image, ps_image, no_of_voters, no_of_pwd_voters, booth_number) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", [data.title, data.pincode, data.start_time, data.end_time, data.phone, data.address, data.location, data.blo_name, data.blo_image, data.ps_images, data.voters, data.pwd_voters, data.booth_number], (err, results, fields)=>{
             if(err){
