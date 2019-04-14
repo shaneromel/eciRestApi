@@ -166,7 +166,7 @@ function getGroupDetails(title){
                     group_id:results[0].id
                 }
     
-                db.query(`SELECT COUNT(*) FROM group_${results[0].title}`, [], (err, results, fields)=>{
+                db.query(`SELECT COUNT(*) FROM group_${results[0].title.replace(" ", "_")}`, [], (err, results, fields)=>{
                     if(err){
                         reject(err);
                         return;

@@ -54,4 +54,19 @@ router.post("/", (req,res)=>{
 
 });
 
+router.delete("/:id", (req, res)=>{
+    const id=req.params.id;
+
+    db.query("DELETE FROM ro_hall_of_fame WHERE id = ?", [id], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success"})
+
+    })
+
+})
+
 module.exports=router;

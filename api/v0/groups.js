@@ -33,70 +33,71 @@ router.delete("/:title", (req, res)=>{
     const table_name = data.title.replace(" ","_");
     query = "DROP TABLE "+"group_"+table_name;
     query2 = "DELETE FROM groups where title='"+data.title+"'";
-    db.query(`SELECT uid from groups_${table_name}`, [], (err, results, fields)=>{
+    let promises1=[];
+
+    db.query(`SELECT uid from group_${table_name}`, [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
         }
-        let promises1=[];
         results.forEach(something=>{
-            promises1.push(deletegroupfromusers(something.uid, data.title));
-        })
-    })
+            promises1.push(deletegroupfromusers(something.uid, something.title));
+        });
 
-    Promises.all(promises1).then(()=>{
-        db.query(query,[], (err,results, fields)=>{
-            if(err){
-                res.send({code:"error", message:err.message});
-                return;
-            }
-    
-            let promises=[];
-            
-            db.query("SELECT assesment_name FROM assesments WHERE group_title = ?", [data.title], (err, results, fields)=>{
+        Promise.all(promises1).then(result=>{
+            db.query(query,[], (err,results, fields)=>{
                 if(err){
                     res.send({code:"error", message:err.message});
                     return;
                 }
-    
-                results.forEach(a=>{
-                    promises.push(deleteAssessment(a.assesment_name));
-                });
-    
-                Promise.all(promises).then(()=>{
-    
-                    request.delete(`${process.env.REST_API}/messages/all/${data.title}`, {headers:{is_server:true}}, (err, response, body)=>{
-                        if(err){
-                            res.send({code:"error", message:err.message});
-                            return;
-                        }
-    
-                        db.query(query2, [], (err, results, fields)=>{
+        
+                let promises=[];
+                
+                db.query("SELECT assesment_name FROM assesments WHERE group_title = ?", [data.title], (err, results, fields)=>{
+                    if(err){
+                        res.send({code:"error", message:err.message});
+                        return;
+                    }
+        
+                    results.forEach(a=>{
+                        promises.push(deleteAssessment(a.assesment_name));
+                    });
+        
+                    Promise.all(promises).then(()=>{
+        
+                        request.delete(`${process.env.REST_API}/messages/all/${data.title}`, {headers:{is_server:true}}, (err, response, body)=>{
                             if(err){
-                                res.send({code:"error", message:err.message})
+                                res.send({code:"error", message:err.message});
                                 return;
                             }
         
-                            if(JSON.parse(response.body).code==="success"){
-                                res.send({code:"success"})
-                            }else{
-                                console.log(response.body)
-                                res.send({code:"error", message:response.body.message});
-                            }
-                
-                        })
-    
-                    })
-                }).catch(err=>{
-                    console.log(err)
-                    res.send({code:"error", message:err.message});
-                })
-    
-            })
+                            db.query(query2, [], (err, results, fields)=>{
+                                if(err){
+                                    res.send({code:"error", message:err.message})
+                                    return;
+                                }
             
+                                if(JSON.parse(response.body).code==="success"){
+                                    res.send({code:"success"})
+                                }else{
+                                    res.send({code:"error", message:response.body.message});
+                                }
+                    
+                            })
+        
+                        })
+                    }).catch(err=>{
+                        res.send({code:"error", message:err.message});
+                    })
+        
+                })
+                
+            })
+        }).catch(err=>{
+            res.send({code:"error", message: err.message});
+            console.log(err)
         })
-    }).catch(err=>{
-        res.send({code:"error", message: err.message});
+
     })
 
 });
@@ -220,16 +221,16 @@ function deleteAssessment(assessmentName){
 
 var deletegroupfromusers = (uid, group_name)=>{
     return new Promise((resolve, reject)=>{
-        db.query("SELECT groups_in FROM members WHERE uid = ?", [data.uid], (err, results, fields)=>{
+        db.query("SELECT groups_in FROM members WHERE uid = ?", [uid], (err, results, fields)=>{
             if(err){
                 reject({code:"error", message:err.message});
                 return;
             }
 
             let groups_inside=results[0].groups_in.split(",");
-            groups_inside=groups_inside.filter(a=>a!=data.group_name).toString();
+            groups_inside=groups_inside.filter(a=>a!=group_name).toString();
 
-            db.query("UPDATE members SET groups_in = ? WHERE uid = ?", [groups_inside, data.uid], (err, results, fields)=>{
+            db.query("UPDATE members SET groups_in = ? WHERE uid = ?", [groups_inside, uid], (err, results, fields)=>{
                 if(err){
                     reject({code:"error", message:err.message});
                     return;
