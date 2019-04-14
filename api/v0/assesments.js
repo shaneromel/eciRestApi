@@ -39,7 +39,7 @@ router.get("/", (req, res)=>{
 router.post("/addquestion", (req, res)=>{
     const data = req.body;
     let query ;
-    const table_name = data.replace(" ","_");
+    const table_name = data.assesment_name.replace(" ","_");
     query = "INSERT INTO assesment_"+table_name+" (question, opt1, opt2, opt3, opt4, correct_opt) VALUES (?,?,?,?,?,?)";
     db.query(query, [data.question, data.opt1, data.opt2, data.opt3, data.opt4, data.ro], (err, results, fields)=>{
         if(err){
@@ -100,7 +100,7 @@ router.post("/validate", (req, res)=>{
 router.post("/edit-question", (req, res)=>{
     const data=req.body;
     const table_name = data.assesment_name.replace(" ","_");
-    db.query(`UPDATE assesment_${table_name} SET question = ?, opt1 = ?, opt2 = ?, opt3 = ?, opt4 = ?, correct_opt = ? WHERE id = ?`, [data.question, data.opt1, data.opt2, data.opt3, data.opt4, data.correct_opt, data.id], (err, results, fields)=>{
+    db.query(`UPDATE assesment_${table_name} SET question = ?, opt1 = ?, opt2 = ?, opt3 = ?, opt4 = ?, correct_opt = ? WHERE id = ?`, [data.question, data.opt1, data.opt2, data.opt3, data.opt4, data.ro, data.id], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
