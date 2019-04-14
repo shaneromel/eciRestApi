@@ -30,8 +30,8 @@ router.delete("/:title", (req, res)=>{
     let query;
     let query2;
     const data = req.params;
-
-    query = "DROP TABLE "+"group_"+data.title;
+    const table_name = data.title.replace(" ","_");
+    query = "DROP TABLE "+"group_"+table_name;
     query2 = "DELETE FROM groups where title='"+data.title+"'";
 
     db.query(query,[], (err,results, fields)=>{
@@ -89,7 +89,8 @@ router.delete("/:title", (req, res)=>{
 
 router.post("/creategroup", (req, res)=>{ //name
     const data=req.body;
-    let query = "CREATE TABLE "+"group_"+data.title+" (id int(11) auto_increment, uid varchar(50) not null, primary key(id), foreign key (uid) references members(uid), CONSTRAINT members_unique UNIQUE (uid))";
+    const table_name = data.title.replace(' ','_');
+    let query = "CREATE TABLE "+"group_"+table_name+" (id int(11) auto_increment, uid varchar(50) not null, primary key(id), foreign key (uid) references members(uid), CONSTRAINT members_unique UNIQUE (uid))";
     db.query(query, [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
@@ -112,7 +113,8 @@ router.post("/creategroup", (req, res)=>{ //name
 //uid, group_title
 router.post("/adduser", (req,res)=>{
     const data=req.body;
-    let query = "INSERT INTO group_"+data.group_title+" (uid) VALUES ('"+data.uid+"')";
+    const table_name = data.group_title.replace(" ","_");
+    let query = "INSERT INTO group_"+table_name+" (uid) VALUES ('"+data.uid+"')";
     db.query(query, [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
@@ -136,7 +138,8 @@ router.post("/adduser", (req,res)=>{
 //uid, group_title
 router.delete("/removeuser/:grouptitle/:uid",(req, res)=>{
     const data = req.params;
-    let query = "DELETE FROM group_"+data.grouptitle+" WHERE uid ='"+data.uid+"'";
+    const table_name = data.group_title.replace(" ", "_");
+    let query = "DELETE FROM group_"+table_name+" WHERE uid ='"+data.uid+"'";
     db.query(query, [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
@@ -168,8 +171,8 @@ router.delete("/removeuser/:grouptitle/:uid",(req, res)=>{
 
 router.get("/members/:title", (req, res)=>{
     const title=req.params.title;
-
-    db.query(`SELECT * FROM group_${title}`, [], (err, results, fields)=>{
+    const table_name = title.replace(" ","_");
+    db.query(`SELECT * FROM group_${table_name}`, [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
