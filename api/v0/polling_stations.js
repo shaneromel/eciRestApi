@@ -134,7 +134,7 @@ router.post("/edit/:id", (req, res)=>{
     const id=req.params.id;
     const start=data.from.split(":");
     const end=data.to.split(":");
-    db.query("UPDATE pollig_stations SET title = ?, pincode = ?, start_time = ?, end_time = ?, phone = ?, address = ?, no_of_voters = ?, no_of_pwd_voters = ?, booth_number = ? WHERE id = ?", [data.title, data.pincode, parseInt(start[0])*60+parseInt(start[1]), parseInt(end[0])*60+parseInt(end[1]), data.phone, data.address, data.no_of_voters, data.no_of_pwd_voters, data.booth_number, id], (err, results, fields)=>{
+    db.query("UPDATE pollig_stations SET title = ?, pincode = ?, start_time = ?, end_time = ?, phone = ?, address = ?, no_of_voters = ?, no_of_pwd_voters = ?, booth_number = ? , blo_name = ? WHERE id = ?", [data.title, data.pincode, parseInt(start[0])*60+parseInt(start[1]), parseInt(end[0])*60+parseInt(end[1]), data.phone, data.address, data.no_of_voters, data.no_of_pwd_voters, data.booth_number, data.blo_name, id], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
