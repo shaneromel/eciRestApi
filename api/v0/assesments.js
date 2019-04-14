@@ -88,7 +88,7 @@ router.get("/questions/:assessment_name", (req, res)=>{
 });
 
 //uid assesment_name question_id selected
-router.post("/validate", (req, res)=>{
+router.post("/submit", (req, res)=>{
     const data=req.body;
 
     db.query("SELECT assesment_name FROM assesments WHERE id = ?", [data.assesment_id], (err, results, fields)=>{
@@ -120,7 +120,7 @@ router.post("/validate", (req, res)=>{
                         return;
                     }
 
-                    res.send({assessment_name:assessmentName, score:score});                    
+                    res.send({code:"success"});                    
 
                 })
             }).catch(err=>{
