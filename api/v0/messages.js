@@ -21,14 +21,25 @@ router.post("/", (req, res)=>{
 //order=DESC
 router.get("/:group_title", (req,res)=>{
     const group_title = req.params.group_title;
-    const order=req.query.order;
+    const order=req.query.order ? req.query.order : 'ASC';
+    const requestType=req.headers['request-type'];
 
     db.query("SELECT * FROM messages WHERE group_title = ? ORDER BY timestamp "+order, [group_title], (err, results, fields)=>{
         if(err){
-            res.send({code: "error", message:err.message});
+            if(requestType==="Android"){
+                res.send([]);
+            }else{
+                res.send({code: "error", message:err.message});
+            }
             return;
         }
-        res.send({code:"success", data: results})
+        
+        if(requestType==="Android"){
+            res.send(results);
+        }else{
+            res.send({code:"success", data: results})
+        }
+
     })
 });
 

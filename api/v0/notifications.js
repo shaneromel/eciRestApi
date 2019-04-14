@@ -1,6 +1,6 @@
 var express=require("express");
 var router=express.Router();
-
+var db=require("../../utils/db");
 var admin = require("firebase-admin");
 
 var serviceAccount = {
@@ -48,6 +48,21 @@ router.post("/send", (req, res)=>{
     }).catch(err=>{
         res.send({code:"error", message:err.message});
     })
+});
+
+router.post("/refresh-token", (req, res)=>{
+  const uid=req.body.uid;
+
+  db.query("UPDATE members SET token = ? WHERE uid = ?", [req.body.token, uid], (err, results, fields)=>{
+    if(err){
+      res.send({code:"error", message:err.message});
+      return
+    }
+
+    res.send({code:"success"});
+
+  })
+
 })
 
 module.exports=router;

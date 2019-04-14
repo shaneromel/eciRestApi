@@ -4,8 +4,8 @@ var db=require("../../utils/db");
 var uniqid=require("uniqid");
 let AWS = require("aws-sdk");
 AWS.config.update({
-    accessKeyId: "AKIAQ4X7IP6B3K6J5TWM",
-    secretAccessKey: "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",
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey:process.env.SECRET_ACCESS_KEY,
     region: "ap-south-1"
 });
 
@@ -100,16 +100,88 @@ router.get("/by-designation/:designation", (req, res)=>{
 
 })
 
-
+// group_title, group_id, count
 router.get("/groups/:uid", (req, res)=>{
-    const uid = req.params.uid;
-    db.query("SELECT * from members WHERE uid = ?",[uid], (err, results, fields)=>{
+    // const uid = req.params.uid;
+    // const requestType=req.headers["request-type"];
+    // db.query("SELECT groups_in from members WHERE uid = ?",[uid], (err, results, fields)=>{
+    //     if(err){
+    //         res.send({code:"error", message:err.message});
+    //         return;
+    //     }
+        
+    //     const a = JSON.stringify(results).split(",")
+    //     for(v in a) {
+    //         console.log(a[v])
+    //     }
+
+    //    // db.query("SELECT count (*) from groups_"+group_title)
+
+    //     if(requestType === "Android") {
+    //         res.send(results);
+    //     } else {
+    //         res.send({code:"success", data:results});
+    //     }
+    // });
+
+    const uid=req.params.uid;
+
+    db.query("SELECT groups_in FROM members WHERE uid = ?", [uid], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
         }
-        res.send({code:"success", data: results});
-    })    
-})
+
+        const groupsIn=results[0].groups_in.split(",");
+        let promises=[];
+
+        groupsIn.forEach(a=>{
+            if(a){
+                promises.push(getGroupDetails(a));
+            }
+        });
+
+        Promise.all(promises).then(data=>{
+            res.send(data);
+        }).catch(err=>{
+            res.send({code:"error", message:err.message});
+        })
+
+    })
+
+});
+
+function getGroupDetails(title){
+    return new Promise((resolve, reject)=>{
+        let data;
+        db.query("SELECT * FROM groups WHERE title = ?", [title], (err, results, fields)=>{
+            if(err){
+                reject(err);
+                return
+            }
+
+            if(results.length>0){
+                data={
+                    group_title:results[0].title,
+                    group_id:results[0].id
+                }
+    
+                db.query(`SELECT COUNT(*) FROM group_${results[0].title}`, [], (err, results, fields)=>{
+                    if(err){
+                        reject(err);
+                        return;
+                    }
+    
+                    data.count=results[0]["COUNT(*)"];
+                    resolve(data);
+    
+                })
+            }else{
+                reject({code:"error", message:"No such group exists"})
+            }
+
+        })
+    })
+}
 
 module.exports=router;

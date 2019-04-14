@@ -65,28 +65,35 @@ router.get("/questions/:assessment_name", (req, res)=>{
 });
 
 //uid assesment_name question_id selected
-router.post("/validate", (req,res)=>{
-    const data = req.body;
-    const user = data.user;
-    const assesment_name = data.assesment_name;
-    const responses = data.response;
-    var correct_options;
-    db.query("SELECT id, correct_opt FROM assesment_"+assesment_name, [], (err, results, fields)=>{
+router.post("/validate", (req, res)=>{
+    const data=req.body;
+
+    db.query("SELECT assesment_name FROM assesments WHERE id = ?", [data.assesment_id], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
+            return;
         }
-        correct_options = results;
-    });
-    console.log(correct_options);
-    // for (var questions in responses) {
-    //     if (data.hasOwnProperty(questions)) {
-    //         var each_question = data[questions];
-    //         var question = each_question.question;
-    //         var selected_answer = each_question.opt_selected;
-    //     }
-    // }
-    res.send({code:"success"})
-});
+
+        if(results.length>0){
+            let promises=[];
+            const assessmentName=results[0].assesment_name;
+               
+            data.response.forEach(a=>{
+                promises.push(validateAnswer(a, assessmentName));
+            });
+
+            Promise.all(promises).then(result=>{
+                res.send(result);
+            }).catch(err=>{
+                res.send({code:"error", message:err.message});
+            })
+        }else{
+            res.send({code:"error", message:"No such assessment exists"})
+        }
+
+    })
+
+})
 
 router.post("/edit-question", (req, res)=>{
     const data=req.body;
@@ -141,5 +148,18 @@ router.delete("/:assessment_name", (req, res)=>{
     })
 
 })
+
+function validateAnswer(data, assessmentName){
+    return new Promise((resolve, reject)=>{
+        db.query(`SELECT * FROM assesment_${assessmentName} WHERE id = ? AND correct_opt = ?`, [data.question, data.opt_selected], (err, results, fields)=>{
+            if(err){
+                reject(err);
+                return;
+            }
+            resolve({question_id:data.question, is_correct:results.length>0 ? true : false})
+
+        })
+    })
+}
 
 module.exports = router;

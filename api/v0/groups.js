@@ -1,6 +1,7 @@
 var express=require("express");
 var router=express.Router();
 var db=require("../../utils/db");
+var request=require("request");
 
 router.get("/", (req, res)=>{
     let query;
@@ -30,33 +31,58 @@ router.delete("/:title", (req, res)=>{
     let query2;
     const data = req.params;
 
-    query = "DROP TABLE "+"group_"+data.title ;
+    query = "DROP TABLE "+"group_"+data.title;
     query2 = "DELETE FROM groups where title='"+data.title+"'";
 
-    let promises=[new Promise((resolve, reject)=>{
-        db.query(query,[], (err,results, fields)=>{
+    db.query(query,[], (err,results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        let promises=[];
+        
+        db.query("SELECT assesment_name FROM assesments WHERE group_title = ?", [data.title], (err, results, fields)=>{
             if(err){
-                reject(err)
+                res.send({code:"error", message:err.message});
                 return;
             }
-            resolve()
+
+            results.forEach(a=>{
+                promises.push(deleteAssessment(a.assesment_name));
+            });
+
+            Promise.all(promises).then(()=>{
+
+                request.delete(`${process.env.REST_API}/messages/all/${data.title}`, {headers:{is_server:true}}, (err, response, body)=>{
+                    if(err){
+                        res.send({code:"error", message:err.message});
+                        return;
+                    }
+
+                    db.query(query2, [], (err, results, fields)=>{
+                        if(err){
+                            res.send({code:"error", message:err.message})
+                            return;
+                        }
+    
+                        if(JSON.parse(response.body).code==="success"){
+                            res.send({code:"success"})
+                        }else{
+                            console.log(response.body)
+                            res.send({code:"error", message:response.body.message});
+                        }
+            
+                    })
+
+                })
+            }).catch(err=>{
+                console.log(err)
+                res.send({code:"error", message:err.message});
+            })
+
         })
-    }), new Promise((resolve, reject)=>{
-        db.query(query2, [], (err, results, fields)=>{
-            if(err){
-                reject(err);
-                return;
-            }
-
-            resolve();
-
-        })
-    })];
-
-    Promise.all(promises).then(()=>{
-        res.send({code:"success"});
-    }).catch(err=>{
-        res.send({code:"error", message:err.message})
+        
     })
 
 });
@@ -116,7 +142,27 @@ router.delete("/removeuser/:grouptitle/:uid",(req, res)=>{
             res.send({code:"error", message:err.message});
             return;
         }
-        res.send({code:"success"})
+
+        db.query("SELECT groups_in FROM members WHERE uid = ?", [data.uid], (err, results, fields)=>{
+            if(err){
+                res.send({code:"error", message:err.message});
+                return;
+            }
+
+            let groupsIn=results[0].groups_in.split(",");
+            groupsIn=groupsIn.filter(a=>a!=data.grouptitle).toString();
+
+            db.query("UPDATE members SET groups_in = ? WHERE uid = ?", [groupsIn, data.uid], (err, results, fields)=>{
+                if(err){
+                    res.send({code:"error", message:err.message});
+                    return;
+                }
+
+                res.send({code:"success"});
+
+            })
+
+        })
     })
 });
 
@@ -133,5 +179,26 @@ router.get("/members/:title", (req, res)=>{
 
     })
 
-})
+});
+
+function deleteAssessment(assessmentName){
+    return new Promise((resolve, reject)=>{
+        request.delete(`${process.env.REST_API}/assesments/${assessmentName}`, {headers:{is_server:true}}, (err, response, body)=>{
+            if(err){
+                reject(err);
+                return;
+            }
+
+            const res=JSON.parse(response.body);
+
+            if(res.code==="success"){
+                resolve(res);
+            }else{
+                reject(res);
+            }
+
+        })
+    })
+}
+
 module.exports=router;
