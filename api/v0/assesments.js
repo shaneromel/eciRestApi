@@ -106,7 +106,23 @@ router.post("/validate", (req, res)=>{
             });
 
             Promise.all(promises).then(result=>{
-                res.send(result);
+                let score=0;
+
+                results.forEach(a=>{
+                    if(a.is_correct){
+                        score=score+1;
+                    }
+                });
+
+                db.query("INSERT INTO scores (assesment_id, score, uid) VALUES (?,?,?)", [assessmentName, score, data.uid], (err, results, fiedls)=>{
+                    if(err){
+                        res.send({code:"error", message:err.message});
+                        return;
+                    }
+
+                    res.send({assessment_name:assessmentName, score:score});                    
+
+                })
             }).catch(err=>{
                 res.send({code:"error", message:err.message});
             })
