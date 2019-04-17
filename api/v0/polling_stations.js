@@ -2,35 +2,31 @@ var express=require("express");
 var router=express.Router();
 var db=require("../../utils/db");
 var redis=require("redis");
-var redisClient=redis.createClient();
+var redisClient=redis.createClient({host:"13.234.59.114"});
 
 redisClient.on("error", err=>{
-    // console.log(err);
+    console.log(err);
 })
 
 router.post("/add", (req, res)=>{
     const data=req.body;
 
-    if(data.start_time<data.end_time){
-        db.query("INSERT INTO pollig_stations (title, pincode, start_time, end_time, phone, address, location, blo_name, blo_image, ps_image, no_of_voters, no_of_pwd_voters, booth_number) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", [data.title, data.pincode, data.start_time, data.end_time, data.phone, data.address, data.location, data.blo_name, data.blo_image, data.ps_images, data.voters, data.pwd_voters, data.booth_number], (err, results, fields)=>{
+    db.query("INSERT INTO pollig_stations (title, pincode, phone, address, location, blo_name, ps_image, no_of_voters, no_of_pwd_voters, booth_number) VALUES (?,?,?,?,?,?,?,?,?,?)", [data.title, data.pincode, data.phone, data.address, data.location, data.blo_name, data.ps_images, data.voters, data.pwd_voters, data.booth_number], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+        redisClient.GEOADD("polling_stations", JSON.parse(data.location).lng, JSON.parse(data.location).lat, results.insertId, (err, reply)=>{
             if(err){
                 res.send({code:"error", message:err.message});
                 return;
             }
-            redisClient.GEOADD("polling_stations", JSON.parse(data.location).lng, JSON.parse(data.location).lat, results.insertId, (err, reply)=>{
-                if(err){
-                    res.send({code:"error", message:err.message});
-                    return;
-                }
 
-                res.send({code:"success"});  
+            res.send({code:"success"});  
 
-            })
-    
         })
-    }else{
-        res.send({code:"error", message:"Start time can should be before end time"})
-    }
+
+    })
 
 });
 
