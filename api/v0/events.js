@@ -3,6 +3,7 @@ var router=express.Router();
 var db=require("../../utils/db");
 var timeConverter=require("../../utils/time_converter");
 var translate=require("../../utils/translate");
+var request=require("request");
 
 router.post("/post", (req, res)=>{
     const data=req.body;
@@ -14,6 +15,16 @@ router.post("/post", (req, res)=>{
         }
 
         res.send({code:"success"});
+
+        request.post(`${process.env.REST_API}/notifications/send`, {headers:{is_server:true}, json:{title:data.name, message:data.description, topic:"events"}}, (err, response,body)=>{
+            if(err){
+                console.log(err);
+                return;
+            }
+
+            console.log(response.body);
+
+        })
 
     })
 

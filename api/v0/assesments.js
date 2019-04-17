@@ -13,13 +13,15 @@ router.post("/", (req,res)=>{
             res.send({code: "error", message:err.message});
             return;
         }
-        db.query("INSERT INTO assesments (group_title, assesment_name, enable) VALUES (?,?,?)", [data.group_title, data.assesment_name, data.enable],(err, results, fields)=>{
+        db.query("INSERT INTO assesments (group_title, assesment_name, enable, start_timestamp, end_timestamp) VALUES (?,?,?,?,?)", [data.group_title, data.assesment_name, data.enable, data.start_timestamp, data.end_timestamp],(err, results, fields)=>{
             if(err){
                 res.send({code: "error", message:err.message});
                 return;
             }
+
+            res.send({code: "success"})
+
         })
-        res.send({code: "success"})
     }) 
 });
 

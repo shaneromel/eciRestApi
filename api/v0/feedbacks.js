@@ -5,7 +5,7 @@ var db=require("../../utils/db");
 router.post("/post", (req, res)=>{
     const data=req.body;
 
-    db.query("INSERT INTO feedbacks (message, name, email,timestamp, phone) VALUES (?,?,?,?,?)", [data.message, data.name, data.email, data.device_id, Date.now(), data.phone], (err, results, fields)=>{
+    db.query("INSERT INTO feedbacks (message, name, email,timestamp, phone) VALUES (?,?,?,?,?)", [data.message, data.name, data.email, Date.now(), data.phone], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
