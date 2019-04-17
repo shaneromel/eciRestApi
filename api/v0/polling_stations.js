@@ -5,7 +5,7 @@ var redis=require("redis");
 var redisClient=redis.createClient();
 
 redisClient.on("error", err=>{
-    console.log(err);
+    // console.log(err);
 })
 
 router.post("/add", (req, res)=>{

@@ -9,13 +9,13 @@ AWS.config.update({
     region: "ap-south-1"
 });
 
+const COGNITO_CLIENT = new AWS.CognitoIdentityServiceProvider({
+    apiVersion: "2016-04-19",
+    region: "ap-south-1"
+});
+
 router.post("/", (req, res)=>{
     const data=req.body;
-
-    const COGNITO_CLIENT = new AWS.CognitoIdentityServiceProvider({
-        apiVersion: "2016-04-19",
-        region: "ap-south-1"
-      });
     
     
       var poolData = {
@@ -57,6 +57,49 @@ router.post("/", (req, res)=>{
       });
 
 });
+
+router.delete("/:uid",(req, res)=>{
+    const uid=req.params.uid;
+
+    db.query("SELECT email FROM members WHERE uid = ?", [uid], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        if(results.length>0){
+            const email=results[0].email;
+            const params={
+                UserPoolId:"ap-south-1_qUHQBbEJ4",
+                Username:email
+            };
+
+            COGNITO_CLIENT.adminDeleteUser(params, (err, data)=>{
+                if(err){
+                    console.log(err);
+                    res.send({code:"error", message:err.message});
+                    return;
+                }
+
+                db.query("DELETE FROM members WHERE uid = ?", [uid], (err, results, fields)=>{
+                    if(err){
+                        res.send({code:"error", message:err.message});
+                        return;
+                    }
+
+                    res.send({code:"success"});
+
+                })
+
+            })
+            
+        }else{
+            res.send({code:"error", message:"No such user exists"})
+        }
+
+    })
+
+})
 
 router.get("/", (req, res)=>{
     db.query("SELECT * FROM members", (err, results, fields)=>{
