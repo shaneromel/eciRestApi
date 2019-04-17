@@ -2,7 +2,7 @@ var express=require("express");
 var router=express.Router();
 var db=require("../../utils/db");
 var redis=require("redis");
-var redisClient=redis.createClient({host:"13.234.59.114"});
+var redisClient=redis.createClient();
 
 redisClient.on("error", err=>{
     console.log(err);
