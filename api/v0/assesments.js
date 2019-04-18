@@ -71,7 +71,7 @@ router.get("/:group_title", (req, res)=>{
 router.post("/addquestion", (req, res)=>{
     const data = req.body;
     let query ;
-    const table_name = data.assesment_name.replace(" ","_");
+    const table_name = data.assesment_name.replace(/ /g,"_");
     query = "INSERT INTO assesment_"+table_name+" (question, opt1, opt2, opt3, opt4, correct_opt) VALUES (?,?,?,?,?,?)";
     db.query(query, [data.question, data.opt1, data.opt2, data.opt3, data.opt4, data.ro], (err, results, fields)=>{
         if(err){
@@ -84,7 +84,7 @@ router.post("/addquestion", (req, res)=>{
 });
 
 router.get("/questions/:assessment_name", (req, res)=>{
-    const assessmentName=req.params.assessment_name.replace(" ","_");
+    const assessmentName=req.params.assessment_name.replace(/ /g,"_");
     const requestType=req.headers['request-type'];
     db.query(`SELECT * FROM assesment_${assessmentName}`, [], (err, results, fields)=>{
         if(err){
@@ -150,7 +150,7 @@ router.post("/submit", (req, res)=>{
 
 router.post("/edit-question", (req, res)=>{
     const data=req.body;
-    const table_name = data.assesment_name.replace(" ","_");
+    const table_name = data.assesment_name.replace(/ /g,"_");
     db.query(`UPDATE assesment_${table_name} SET question = ?, opt1 = ?, opt2 = ?, opt3 = ?, opt4 = ?, correct_opt = ? WHERE id = ?`, [data.question, data.opt1, data.opt2, data.opt3, data.opt4, data.ro, data.id], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
@@ -165,7 +165,7 @@ router.post("/edit-question", (req, res)=>{
 
 router.delete("/question/:id/:assessment_name", (req, res)=>{
     const id=req.params.id;
-    const assessmentName=req.params.assessment_name.replace(" ","_");
+    const assessmentName=req.params.assessment_name.replace(/ /g,"_");
 
     db.query(`DELETE FROM assesment_${assessmentName} WHERE id = ?`, [id], (err, results, fields)=>{
         if(err){
@@ -180,7 +180,7 @@ router.delete("/question/:id/:assessment_name", (req, res)=>{
 
 router.delete("/:assessment_name", (req, res)=>{
     const assessmentName=req.params.assessment_name;
-    const table_name = assessmentName.replace(" ","_");
+    const table_name = assessmentName.replace(/ /g,"_");
     db.query("DELETE FROM assesments WHERE assesment_name = ?", [assessmentName], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
@@ -202,7 +202,7 @@ router.delete("/:assessment_name", (req, res)=>{
 })
 
 function validateAnswer(data, assessmentName){
-    assessmentName = assessmentName.replace(" ","_");
+    assessmentName = assessmentName.replace(/ /g,"_");
     return new Promise((resolve, reject)=>{
         db.query(`SELECT * FROM assesment_${assessmentName} WHERE id = ? AND correct_opt = ?`, [data.question, data.opt_selected], (err, results, fields)=>{
             if(err){
