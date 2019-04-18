@@ -46,14 +46,14 @@ router.get("/all", (req, res)=>{
     const requestType=req.headers['request-type'];
 
     if(limit&&offset){
-        query=`SELECT id,name,image,timestamp FROM voters_feed LIMIT ${offset},${limit} ORDER BY timestamp DESC`;
+        query=`SELECT id,name,image,timestamp,isactive FROM voters_feed LIMIT ${offset},${limit} ORDER BY timestamp DESC`;
     }else if(!limit&&offset){
         res.send({code:"error", message:"Limit should be supplied with offset"});
         return;
     }else if(!offset&&limit){
-        query=`SELECT id,name,image,timestamp FROM voters_feed LIMIT ${limit} ORDER BY timestamp DESC`;
+        query=`SELECT id,name,image,timestamp,isactive FROM voters_feed LIMIT ${limit} ORDER BY timestamp DESC`;
     }else{
-        query="SELECT id,name,image,timestamp FROM voters_feed ORDER BY timestamp DESC";
+        query="SELECT id,name,image,timestamp,isactive FROM voters_feed ORDER BY timestamp DESC";
     }
 
     db.query(query, [], (err, results, fields)=>{
@@ -114,5 +114,35 @@ router.post("/", (req,res)=>{
     }
 
 });
+
+router.post("/approve/:id", (req, res)=>{
+    const id=req.params.id;
+
+    db.query("UPDATE voters_feed SET isactive = ? WHERE id = ?", [1, id], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success"});
+
+    })
+
+});
+
+router.delete("/:id", (req, res)=>{
+    const id=req.params.id;
+
+    db.query("DELETE FROM voters_feed WHERE id = ?", [id], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success"})
+
+    })
+
+})
 
 module.exports=router;

@@ -35,7 +35,7 @@ router.delete("/:title", (req, res)=>{
     query2 = "DELETE FROM groups where title='"+data.title+"'";
     let promises1=[];
 
-    db.query(`SELECT uid, from group_${table_name}`, [], (err, results, fields)=>{
+    db.query(`SELECT uid FROM group_${table_name}`, [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
