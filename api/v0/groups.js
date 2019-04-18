@@ -35,13 +35,13 @@ router.delete("/:title", (req, res)=>{
     query2 = "DELETE FROM groups where title='"+data.title+"'";
     let promises1=[];
 
-    db.query(`SELECT uid from group_${table_name}`, [], (err, results, fields)=>{
+    db.query(`SELECT uid, from group_${table_name}`, [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
         }
         results.forEach(something=>{
-            promises1.push(deletegroupfromusers(something.uid, something.title));
+            promises1.push(deletegroupfromusers(something.uid, data.title));
         });
 
         Promise.all(promises1).then(result=>{

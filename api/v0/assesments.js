@@ -37,6 +37,18 @@ router.get("/", (req, res)=>{
     })
 });
 
+router.get("/scores", (req, res)=>{
+    db.query("SELECT assesment_name, name, score, assesment_id, members.uid FROM scores, assesments, members WHERE scores.assesment_id = assesments.id AND scores.uid = members.uid", [], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success", data:results});
+
+    })
+})
+
 router.get("/:group_title", (req, res)=>{
     const group_title = req.params.group_title;
     let query;
@@ -116,7 +128,7 @@ router.post("/submit", (req, res)=>{
                     }
                 });
 
-                db.query("INSERT INTO scores (assesment_id, score, uid) VALUES (?,?,?)", [assessmentName, score, data.uid], (err, results, fiedls)=>{
+                db.query("INSERT INTO scores (assesment_id, score, uid) VALUES (?,?,?)", [assessmentName, (score/data.response.length)*100, data.uid], (err, results, fiedls)=>{
                     if(err){
                         res.send({code:"error", message:err.message});
                         return;
