@@ -5,7 +5,7 @@ var db=require("../../utils/db");
 //group_title assesment_name enable
 router.post("/", (req,res)=>{
     const data = req.body;
-    const table_name = data.assesment_name.replace(" ","_");
+    const table_name = data.assesment_name.replace(/ /g,"_");
     let query;
     query = "CREATE TABLE assesment_"+table_name+" (id int not null auto_increment, question varchar(100) not null, opt1 varchar(50) not null, opt2 varchar(50) not null, opt3 varchar(50) not null, opt4 varchar(50) not null, correct_opt int not null, primary key(id))";
     db.query(query, [], (err, results, fields)=>{
