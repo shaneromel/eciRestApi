@@ -11,7 +11,7 @@ redisClient.on("error", err=>{
 router.post("/add", (req, res)=>{
     const data=req.body;
 
-    db.query("INSERT INTO pollig_stations (title, pincode, phone, address, location, blo_name, ps_image, no_of_voters, no_of_pwd_voters, booth_number) VALUES (?,?,?,?,?,?,?,?,?,?)", [data.title, data.pincode, data.phone, data.address, data.location, data.blo_name, data.ps_images, data.voters, data.pwd_voters, data.booth_number], (err, results, fields)=>{
+    db.query("INSERT INTO pollig_stations (title, pincode, phone, address, location, blo_name, ps_image, no_of_voters, no_of_pwd_voters, booth_number, assembly, block) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", [data.title, data.pincode, data.phone, data.address, data.location, data.blo_name, data.ps_images, data.voters, data.pwd_voters, data.booth_number, data.assembly, data.block], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
@@ -31,21 +31,32 @@ router.post("/add", (req, res)=>{
 });
 
 router.get("/get", (req, res)=>{
-    const limit=req.query.limit;
-    const offset=req.query.offset;
     let query;
+    const assembly=req.query.assembly;
+    const block=req.query.block;
     const requestType=req.headers["request-type"];
 
-    if(limit&&offset){
-        query=`SELECT * FROM pollig_stations LIMIT ${offset},${limit} ORDER BY id DESC`;
-    }else if(!offset&&limit){
-        query=`SELECT * FROM pollig_stations LIMIT ${limit} ORDER BY id DESC`;
-    }else if(!limit&&offset){
-        res.send({code:"error", message:"Limit should be supplied with offset"});
-        return;
+    if(assembly&&block){
+        query=`SELECT * FROM pollig_stations WHERE assembly = '${assembly}' AND block = '${block}'`;
+    }else if(assembly&&!block){
+        query=`SELECT * FROM pollig_stations WHERE assembly = '${assembly}'`;
+    }else if(block&&!assembly){
+        query=`SELECT * FROM pollig_stations WHERE block = '${block}'`;
     }else{
-        query="SELECT * FROM pollig_stations ORDER BY id DESC";
+        query=`SELECT * FROM pollig_stations`;
     }
+
+    // if(limit&&offset){
+    //     query=`SELECT * FROM pollig_stations LIMIT ${offset},${limit} ORDER BY id DESC`;
+    // }else if(!offset&&limit){
+    //     query=`SELECT * FROM pollig_stations LIMIT ${limit} ORDER BY id DESC`;
+    // }else if(!limit&&offset){
+    //     res.send({code:"error", message:"Limit should be supplied with offset"});
+    //     return;
+    // }else{
+    //     query="SELECT * FROM pollig_stations ORDER BY id DESC";
+    // }
+
 
     db.query(query, [], (err, results, fields)=>{
         if(err){
@@ -129,7 +140,7 @@ router.post("/edit/:id", (req, res)=>{
     const data=req.body;
     const id=req.params.id;
 
-    db.query("UPDATE pollig_stations SET title = ?, pincode = ?, phone = ?, address = ?, no_of_voters = ?, no_of_pwd_voters = ?, booth_number = ? , blo_name = ? WHERE id = ?", [data.title, data.pincode, data.phone, data.address, data.no_of_voters, data.no_of_pwd_voters, data.booth_number, data.blo_name, id], (err, results, fields)=>{
+    db.query("UPDATE pollig_stations SET title = ?, pincode = ?, phone = ?, address = ?, no_of_voters = ?, no_of_pwd_voters = ?, booth_number = ? , blo_name = ?, assembly = ?, block = ? WHERE id = ?", [data.title, data.pincode, data.phone, data.address, data.no_of_voters, data.no_of_pwd_voters, data.booth_number, data.blo_name, data.assembly, data.block, id], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             

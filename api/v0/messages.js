@@ -61,6 +61,7 @@ router.delete("/all/:group_title",(req,res)=>{
     db.query("DELETE FROM messages WHERE group_title = ?", [group_title], (err, results, fields)=>{
         if(err){
             res.send({code: "error", message : err.message});
+            return;
         }
         res.send({code: "success"})
     })

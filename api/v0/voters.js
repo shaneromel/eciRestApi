@@ -1,6 +1,7 @@
 var express=require("express");
 var router=express.Router();
 var db=require("../../utils/db");
+var request=require("request");
 
 router.get("/vod-feeds", (req, res)=>{
     const limit=req.query.limit;
@@ -66,7 +67,27 @@ router.post("/select-vod", (req, res)=>{
             return;
         }
 
-        res.send({code:"success"});
+        db.query("SELECT image FROM voter_of_day_data WHERE id = ?", [data.id], (err, results, fields)=>{
+            if(err){
+                res.send({code:"error", message:err.message});
+                return;
+            }
+
+            if(results.length>0){
+                request.post("https://graph.facebook.com/v3.2/2188982481214711/photos?access_token=EAACp9LJOuIkBAK1SfppptDval2RfBbFsbcyI8Xis4ANHbZBgKsBCGjyS52hL73iZAGAmvSbMu51LlgGFFjfIzCI6ZBYal7shq7m76JZAm8IsoYyfP8ZACtq3jIxmwz0aV6WSpZCZCFUmJa2dC53TIaZClUxka9ZCgQet6gyWqLknXEOTPxvsqJtYzXZCo6ZBraHQZCwDhq3sz1Q4IwZDZD", {json:{url:results[0].image, caption:"Voter of the day"}}, (err, response, body)=>{
+                    if(err){
+                        res.send({code:"error", message:err.message});
+                        return;
+                    }
+
+                    res.send({code:"success"});
+
+                })
+            }else{
+                res.send({code:"error", message:"No such submission exists"})
+            }
+
+        })
 
     })
 
