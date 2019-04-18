@@ -39,11 +39,24 @@ router.get("/", (req, res)=>{
 
 });
 
-router.get("/:id", (req, res)=>{
-    const id = req.params.id;
+router.get("/all", (req, res)=>{
+    const limit=req.query.limit;
+    const offset=req.query.offset;
+    let query;
     const requestType=req.headers['request-type'];
 
-    db.query("SELECT id,name,image,timestamp,content FROM voters_feed WHERE id = ? AND isactive = 1", [id], (err, results, fields)=>{
+    if(limit&&offset){
+        query=`SELECT id,name,image,timestamp FROM voters_feed LIMIT ${offset},${limit} ORDER BY timestamp DESC`;
+    }else if(!limit&&offset){
+        res.send({code:"error", message:"Limit should be supplied with offset"});
+        return;
+    }else if(!offset&&limit){
+        query=`SELECT id,name,image,timestamp FROM voters_feed LIMIT ${limit} ORDER BY timestamp DESC`;
+    }else{
+        query="SELECT id,name,image,timestamp FROM voters_feed ORDER BY timestamp DESC";
+    }
+
+    db.query(query, [], (err, results, fields)=>{
         if(err){
             if(requestType==="Android"){
                 res.send([]);
@@ -57,6 +70,29 @@ router.get("/:id", (req, res)=>{
             res.send(results);
         }else{
             res.send({code:"success", data:results});
+        }
+
+    })
+})
+
+router.get("/:id", (req, res)=>{
+    const id = req.params.id;
+    const requestType=req.headers['request-type'];
+
+    db.query("SELECT id,name,image,timestamp,content,isactive FROM voters_feed WHERE id = ?", [id], (err, results, fields)=>{
+        if(err){
+            if(requestType==="Android"){
+                res.send([]);
+            }else{
+                res.send({code:"error", message:err.message});
+            }
+            return;
+        }
+
+        if(requestType==="Android"){
+            res.send(results[0]);
+        }else{
+            res.send({code:"success", data:results[0]});
         }
 
     })
