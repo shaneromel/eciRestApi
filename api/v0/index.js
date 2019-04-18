@@ -22,6 +22,7 @@ router.use("/messages", require("./messages"));
 router.use("/assesments", require("./assesments"));
 router.use("/discussions", require("./discussions"));
 router.use("/admins", require("./admins"));
+router.use("/support", require("./support"));
 
 router.post("/refresh-token", (req, res)=>{
     res.send({token:req.body.token});
