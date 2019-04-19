@@ -194,6 +194,21 @@ router.get("/groups/:uid", (req, res)=>{
 
 });
 
+router.post("/update", (req, res)=>{
+    const data=req.body;
+
+    db.query("UPDATE members SET image = ? WHERE uid = ?", [data.image, data.uid], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success"});
+
+    })
+
+})
+
 function getGroupDetails(title){
     return new Promise((resolve, reject)=>{
         let data;

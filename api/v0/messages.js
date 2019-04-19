@@ -1,7 +1,7 @@
 var express=require("express");
 var router=express.Router();
 var db=require("../../utils/db");
-
+var admin=require("firebase-admin");
 
 //message group_title
 router.post("/", (req, res)=>{
@@ -12,6 +12,52 @@ router.post("/", (req, res)=>{
             res.send({code:"error", message:err.message});
             return;
         }
+
+        db.query(`SELECT * FROM group_${data.group_title.replace(/ /g, "_")}`, [], (err, results, fields)=>{
+            if(err){
+                console.log(err);
+                return;
+            }
+
+            if(results.length>0){
+                let promises=[];
+
+                results.forEach(a=>{
+                    promises.push(new Promise((resolve, reject)=>{
+                        db.query("SELECT token FROM members WHERE uid = ?", [a.uid], (err, results, fields)=>{
+                            if(err){
+                                reject(err);
+                                return;
+                            }
+
+                            resolve(results[0].token);
+
+                        })
+                    }))
+                });
+
+                Promise.all(promises).then(tokens=>{
+
+                    tokens=tokens.filter(a=>a);
+
+                    const notificationData={
+                        notification:{
+                            title:`Message from group ${data.group_title}`,
+                            body:data.message
+                        }
+                    };
+
+                    admin.messaging().sendToDevice(tokens, notificationData).then(()=>{
+                        console.log("Notification sent");
+                    }).catch(err=>{
+                        console.log(err)
+                    })
+                })
+
+            }
+
+        })
+
         res.send({code:"success"});
 
     })

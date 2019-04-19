@@ -67,7 +67,7 @@ router.post("/select-vod", (req, res)=>{
             return;
         }
 
-        db.query("SELECT image FROM voter_of_day_data WHERE id = ?", [data.id], (err, results, fields)=>{
+        db.query("SELECT image,name FROM voter_of_day_data WHERE id = ?", [data.id], (err, results, fields)=>{
             if(err){
                 res.send({code:"error", message:err.message});
                 return;
@@ -79,6 +79,20 @@ router.post("/select-vod", (req, res)=>{
                         res.send({code:"error", message:err.message});
                         return;
                     }
+
+                    const notificationData={
+                        image:results[0].image,
+                        title:results[0].name,
+                        message:results[0].content,
+                        topic:"others"
+                    };
+
+                    request.post(`${process.env.REST_API}/notifications/send`, {json:notificationData, headers:{is_server:true}}, (err, response, body)=>{
+                        if(err){
+                            console.log(err);
+                            return;
+                        }
+                    })
 
                     res.send({code:"success"});
 
