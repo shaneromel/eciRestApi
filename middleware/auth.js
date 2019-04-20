@@ -2,6 +2,8 @@ var jwt=require("jsonwebtoken");
 var fs=require("fs");
 var db=require("../utils/db");
 var md5=require("md5");
+var jwkToPem = require("jwk-to-pem");
+
 
 module.exports=(req, res, next)=>{
     const token=req.headers.token;
@@ -19,6 +21,21 @@ module.exports=(req, res, next)=>{
     }
 
     if(requestType==="Android"){
+
+        const congnitoToken=req.headers.token;
+        const jwk=fs.readFileSync("./keys/jwk.json");
+        const pem=jwkToPem(jwk);
+
+        jwt.verify(congnitoToken, pem, {algorithms:['RS256']}, (err, decodedToken)=>{
+            if(err){
+                res.status(403).send(err);
+                // return;
+            }
+
+            console.log(decodedToken);
+
+        })
+
         next();
         return;
     }
@@ -26,30 +43,30 @@ module.exports=(req, res, next)=>{
     if(req.url.split("/")[2]==="auth"){
         next();
     }else{
-        // if(token){
-        //     const decoded=jwt.decode(token);
+        if(token){
+            const decoded=jwt.decode(token);
 
-        //     db.query("SELECT password FROM admins WHERE email = ?", [decoded.email], (err, results, fields)=>{
-        //         if(err){
-        //             res.status(403).send({code:"forbiddened"});
-        //             return;
-        //         }
+            db.query("SELECT password FROM admins WHERE email = ?", [decoded.email], (err, results, fields)=>{
+                if(err){
+                    res.status(403).send({code:"forbiddened"});
+                    return;
+                }
 
-        //         if(results.length>0){
-        //             if(results[0].password === md5(decoded.password)){
-        //                 next();
-        //             }else{
-        //                 res.status(403).send({code:"forbiddened"});
-        //             }
-        //         }else{
-        //             res.status(403).send({code:"forbiddened"});
-        //         }
+                if(results.length>0){
+                    if(results[0].password === md5(decoded.password)){
+                        next();
+                    }else{
+                        res.status(403).send({code:"forbiddened"});
+                    }
+                }else{
+                    res.status(403).send({code:"forbiddened"});
+                }
 
-        //     })
+            })
 
-        // }else{
-        //     res.status(403).send({code:"forbiddened", message:"No token provided"})
-        // }
+        }else{
+            res.status(403).send({code:"forbiddened", message:"No token provided"})
+        }
         next();
     }
 

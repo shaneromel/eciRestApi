@@ -1,17 +1,16 @@
 var express=require("express");
 var router=express.Router();
 var db=require("../../utils/db");
-var uniqid=require("uniqid");
 let AWS = require("aws-sdk");
 AWS.config.update({
     accessKeyId: process.env.ACCESS_KEY_ID,
     secretAccessKey:process.env.SECRET_ACCESS_KEY,
-    region: "ap-south-1"
+    region: process.env.REGION
 });
 
 const COGNITO_CLIENT = new AWS.CognitoIdentityServiceProvider({
-    apiVersion: "2016-04-19",
-    region: "ap-south-1"
+    apiVersion: process.env.API_VERSION,
+    region: process.env.REGION
 });
 
 router.post("/", (req, res)=>{
@@ -19,7 +18,7 @@ router.post("/", (req, res)=>{
     
     
       var poolData = {
-        UserPoolId: "ap-south-1_qUHQBbEJ4",
+        UserPoolId: process.env.CONGNITO_USER_POOL_ID,
         Username: data.email,
         DesiredDeliveryMediums: ["EMAIL"],
         TemporaryPassword: "Abc@123456",
