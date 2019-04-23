@@ -102,7 +102,24 @@ router.get("/questions/:assessment_name", (req, res)=>{
 });
 
 //uid assesment_name question_id selected
+
 router.post("/submit", (req, res)=>{
+    const assessmentId=req.body.assessment_id;
+    const uid=req.body.uid;
+
+    db.query("INSERT INTO scores (assesment_id, score, uid) VALUES (?,?,?)", [assessmentId, req.body.score, uid], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success"});
+
+    })
+
+})
+
+router.post("/validate-submit", (req, res)=>{
     const data=req.body;
 
     db.query("SELECT assesment_name FROM assesments WHERE id = ?", [data.assesment_id], (err, results, fields)=>{

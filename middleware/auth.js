@@ -23,19 +23,24 @@ module.exports=(req, res, next)=>{
     if(requestType==="Android"){
 
         const congnitoToken=req.headers.token;
-        const jwk=fs.readFileSync("./keys/jwk.json");
-        const pem=jwkToPem(jwk);
+        const decoded=jwt.decode(congnitoToken);
+        const currentTime=Math.round(Date.now()/1000);
 
-        jwt.verify(congnitoToken, pem, {algorithms:['RS256']}, (err, decodedToken)=>{
-            if(err){
-                res.status(403).send(err);
-                // return;
-            }
-
-            console.log(decodedToken);
-
-        })
-
+        // if(decoded){
+        //     if(decoded.exp<currentTime){
+        //         res.status(403).send({code:"token-expired"});
+        //     }else if(decoded.aud!=process.env.APP_CLIENT_ID){
+        //         res.status(403).send({code:"forbiddened"});
+        //     }else if(decoded.iss!=`https://cognito-idp.ap-south-1.amazonaws.com/${process.env.CONGNITO_USER_POOL_ID}`){
+        //         res.status(403).send({code:"forbiddened"});
+        //     }else if(decoded.token_use!="id"){
+        //         res.status(403).send({code:"forbiddened"});
+        //     }else{
+        //         next();
+        //     }
+        // }else{
+        //     res.status(403).send({code:"invalid-token"});
+        // }
         next();
         return;
     }
@@ -44,30 +49,32 @@ module.exports=(req, res, next)=>{
         next();
     }else{
         if(token){
-            const decoded=jwt.decode(token);
+            
+            if(requestType!="Android"){
+                const decoded=jwt.decode(token);
 
-            db.query("SELECT password FROM admins WHERE email = ?", [decoded.email], (err, results, fields)=>{
-                if(err){
-                    res.status(403).send({code:"forbiddened"});
-                    return;
-                }
+                db.query("SELECT password FROM admins WHERE email = ?", [decoded.email], (err, results, fields)=>{
+                    if(err){
+                        res.status(403).send({code:"forbiddened"});
+                        return;
+                    }
 
-                if(results.length>0){
-                    if(results[0].password === md5(decoded.password)){
-                        next();
+                    if(results.length>0){
+                        if(results[0].password === md5(decoded.password)){
+                            next();
+                        }else{
+                            res.status(403).send({code:"forbiddened"});
+                        }
                     }else{
                         res.status(403).send({code:"forbiddened"});
                     }
-                }else{
-                    res.status(403).send({code:"forbiddened"});
-                }
 
-            })
+                })
+            }
 
         }else{
             res.status(403).send({code:"forbiddened", message:"No token provided"})
         }
-        next();
     }
 
 }

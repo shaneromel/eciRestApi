@@ -16,15 +16,19 @@ router.post("/add", (req, res)=>{
             res.send({code:"error", message:err.message});
             return;
         }
-        redisClient.GEOADD("polling_stations", JSON.parse(data.location).lng, JSON.parse(data.location).lat, results.insertId, (err, reply)=>{
-            if(err){
-                res.send({code:"error", message:err.message});
-                return;
-            }
-
-            res.send({code:"success"});  
-
-        })
+        if(data.location){
+            redisClient.GEOADD("polling_stations", JSON.parse(data.location).lng, JSON.parse(data.location).lat, results.insertId, (err, reply)=>{
+                if(err){
+                    res.send({code:"error", message:err.message});
+                    return;
+                }
+    
+                res.send({code:"success"});  
+    
+            })
+        }else{
+            res.send({code:"success"});
+        }
 
     })
 
@@ -69,8 +73,10 @@ router.get("/get", (req, res)=>{
         }
 
         results=results.map(a=>{
-            a.images=a.ps_image.split(",");
-            delete a.ps_image;
+            if(a.ps_image){
+                a.images=a.ps_image.split(",");
+                delete a.ps_image;
+            }
             return a;
         });
 
