@@ -6,13 +6,9 @@ var translate=require("../../utils/translate");
 
 router.post("/post", (req, res)=>{
     const data=req.body;
-    const dateArray=req.body.date.split("-");
-    const time=`${data.time.split(" ")[0]}:00${data.time.split(" ")[1]==="am" ? "AM" : "PM"}`;
-
-    const convertedTime=timeConverter(time);
-    const date=new Date(dateArray[0], dateArray[1], dateArray[2], convertedTime.hour, convertedTime.min, 0);
+    const date=new Date();
     
-    db.query("INSERT INTO announcements (title, date, time, timestamp) VALUES (?,?,?,?)", [data.title, data.date, data.time, date.getTime()], (err, results, fields)=>{
+    db.query("INSERT INTO announcements (title, date, time, timestamp) VALUES (?,?,?,?)", [data.title, date.toDateString(), date.toTimeString(), date.getTime()], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
@@ -52,7 +48,8 @@ router.get("/get", (req, res)=>{
             return;
         }
 
-        const texts=[];
+
+
         const promises=[];
 
         results=results.map(a=>{
@@ -76,7 +73,6 @@ router.get("/get", (req, res)=>{
         if(language==="hi"){
             Promise.all(promises).then(translations=>{
                 let c=0;
-                console.log(translations);
                 results=results.map(result=>{
                     let k=0;
                     result.selected_keys.forEach(key=>{
