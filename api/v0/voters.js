@@ -61,7 +61,7 @@ router.post("/vod", (req,res)=>{
 router.post("/select-vod", (req, res)=>{
     const data=req.body;
 
-    db.query("INSERT INTO selected_voter (id, date, date_string) VALUES (?,?,?)", [data.id, data.date, (new Date(data.date).toDateString())], (err, results, fields)=>{
+    db.query("INSERT INTO selected_voter (id, date, date_string) VALUES (?,?,?)", [data.id, data.date, (new Date()).toDateString()], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
@@ -129,13 +129,21 @@ router.get("/is-vod/:id", (req, res)=>{
 router.delete("/vod-feed/:id", (req, res)=>{
     const id=req.params.id;
 
-    db.query("DELETE FROM voter_of_day_data WHERE id = ?", [id], (err, results, fields)=>{
+    db.query("DELETE FROM selected_voter WHERE id = ?", [id], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
         }
 
-        res.send({code:"success"});
+        db.query("DELETE FROM voter_of_day_data WHERE id = ?", [id], (err, results, fields)=>{
+            if(err){
+                res.send({code:"error", message:err.message});
+                return;
+            }
+    
+            res.send({code:"success"});
+    
+        })
 
     })
 
