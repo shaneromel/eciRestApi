@@ -62,8 +62,8 @@ router.get("/get", (req, res)=>{
         const promises=[];
 
         results=results.map(a=>{
-            a.start_timestamp=dateToTimestamp(a.date, a.time);
-            a.end_timestamp=dateToTimestamp(a.end_date, a.end_time);
+            a.start_timestamp=dateToTimestamp(a.date, a.time)-1.98e+7;
+            a.end_timestamp=dateToTimestamp(a.end_date, a.end_time)-1.98e+7;
             if(language==="hi"){
                 const keys=Object.keys(a);
                 const selectedKeys=[];
@@ -196,9 +196,8 @@ function dateToTimestamp(date, time){
     const formattedTime=`${time.split(" ")[0]}:00${time.split(" ")[1]==="am" ? "AM" : "PM"}`;
 
     const convertedTime=timeConverter(formattedTime);
-
+    
     const formattedDate=new Date(dateArray[2], parseInt(dateArray[0])-1, dateArray[1], convertedTime.hour, convertedTime.min, 0);
-
     return formattedDate.getTime();
 
 }

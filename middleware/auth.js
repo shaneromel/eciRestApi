@@ -10,6 +10,11 @@ module.exports=(req, res, next)=>{
     const publicKey=fs.readFileSync("./keys/public.key");
     const requestType=req.headers["request-type"];
 
+    if(req.headers.is_server){
+        next();
+        return;
+    }
+
     if(req.url.split("/")[2]==="refresh-token"){
         next();
         return;
