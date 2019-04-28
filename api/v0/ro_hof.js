@@ -9,14 +9,14 @@ router.get("/", (req, res)=>{
     const requestType=req.headers['request-type'];
 
     if(limit&&offset){
-        query=`SELECT * FROM ro_hall_of_fame LIMIT ${offset},${limit}`;
+        query=`SELECT * FROM ro_hall_of_fame LIMIT ${offset},${limit} ORDER BY timestamp DESC`;
     }else if(!limit&&offset){
         res.send({code:"error", message:"Limit should be supplied with offset"});
         return;
     }else if(!offset&&limit){
-        query=`SELECT * FROM ro_hall_of_fame LIMIT ${limit}`;
+        query=`SELECT * FROM ro_hall_of_fame LIMIT ${limit} ORDER BY timestamp DESC`;
     }else{
-        query="SELECT * FROM ro_hall_of_fame";
+        query="SELECT * FROM ro_hall_of_fame ORDER BY timestamp DESC";
     }
 
     db.query(query, [], (err, results, fields)=>{

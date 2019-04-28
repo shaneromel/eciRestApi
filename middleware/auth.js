@@ -31,21 +31,21 @@ module.exports=(req, res, next)=>{
         const decoded=jwt.decode(congnitoToken);
         const currentTime=Math.round(Date.now()/1000);
 
-        // if(decoded){
-        //     if(decoded.exp<currentTime){
-        //         res.status(403).send({code:"token-expired"});
-        //     }else if(decoded.aud!=process.env.APP_CLIENT_ID){
-        //         res.status(403).send({code:"forbiddened"});
-        //     }else if(decoded.iss!=`https://cognito-idp.ap-south-1.amazonaws.com/${process.env.CONGNITO_USER_POOL_ID}`){
-        //         res.status(403).send({code:"forbiddened"});
-        //     }else if(decoded.token_use!="id"){
-        //         res.status(403).send({code:"forbiddened"});
-        //     }else{
-        //         next();
-        //     }
-        // }else{
-        //     res.status(403).send({code:"invalid-token"});
-        // }
+        if(decoded){
+            if(decoded.exp<currentTime){
+                res.status(403).send({code:"token-expired"});
+            }else if(decoded.aud!=process.env.APP_CLIENT_ID){
+                res.status(403).send({code:"forbiddened"});
+            }else if(decoded.iss!=`https://cognito-idp.ap-south-1.amazonaws.com/${process.env.CONGNITO_USER_POOL_ID}`){
+                res.status(403).send({code:"forbiddened"});
+            }else if(decoded.token_use!="id"){
+                res.status(403).send({code:"forbiddened"});
+            }else{
+                next();
+            }
+        }else{
+            res.status(403).send({code:"invalid-token"});
+        }
         next();
         return;
     }

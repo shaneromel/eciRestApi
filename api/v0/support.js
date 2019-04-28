@@ -18,7 +18,7 @@ router.post("/post", (req, res)=>{
 });
 
 router.get("/get", (req, res)=>{
-    db.query("SELECT * FROM support_feedback", [], (err, results, fields)=>{
+    db.query("SELECT * FROM support_feedback ORDER BY timestamp DESC", [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
