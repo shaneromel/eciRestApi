@@ -20,7 +20,7 @@ router.get("/vod-feeds", (req, res)=>{
         query=`SELECT * FROM voter_of_day_data`;
     }
 
-    db.query(query, [], (err, results, fields)=>{
+    db.query(query+" ORDER BY timestamp DESC", [], (err, results, fields)=>{
         if(err){
             if(requestType==="Android"){
                 res.send([]);
