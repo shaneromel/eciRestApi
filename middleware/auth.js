@@ -2,7 +2,6 @@ var jwt=require("jsonwebtoken");
 var fs=require("fs");
 var db=require("../utils/db");
 var md5=require("md5");
-var jwkToPem = require("jwk-to-pem");
 
 
 module.exports=(req, res, next)=>{
