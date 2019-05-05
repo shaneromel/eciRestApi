@@ -16,8 +16,24 @@ router.post("/", (req,res)=>{
     })
 });
 
+router.post("/discreetion", (req,res)=>{
+    const timestamp=parseInt(req.body.timestamp);
+
+    console.log(req.body);
+
+    db.query("INSERT INTO magazines (pdf, timestamp, date_string) VALUES (?,?,?)", [req.body.pdf, timestamp, (new Date(timestamp)).toDateString()], (err, result, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success"});
+
+    })
+})
+
 router.get("/", (req, res)=>{
-    db.query("SELECT * FROM magazines", [], (err, results, fields)=>{
+    db.query("SELECT * FROM magazines ORDER BY timestamp DESC", [], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
