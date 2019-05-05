@@ -5,7 +5,7 @@ var db=require("../../utils/db");
 router.post("/", (req,res)=>{
     const timestamp=Date.now();
 
-    db.query("INSERT INTO magazines (image, pdf, timestamp) VALUES (?,?,?)", [req.body.image, req.body.pdf, timestamp, (new Date(timestamp).toDateString())], (err, result, fields)=>{
+    db.query("INSERT INTO magazines (pdf, timestamp, date_string) VALUES (?,?,?)", [req.body.pdf, timestamp, (new Date(timestamp)).toDateString()], (err, result, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
@@ -23,8 +23,11 @@ router.get("/", (req, res)=>{
             return;
         }
 
-        res.send({code:"success", data:results});
-
+        if(req.headers['request-type']==="Android"){
+            res.send(results)
+        }else{
+            res.send({code:"success", data:results});
+        }
     })
 });
 
