@@ -58,6 +58,26 @@ router.post("/vod", (req,res)=>{
 
 });
 
+router.post("/vod-admin", (req, res)=>{
+    const data=req.body;
+    const date=req.body.date.split("/");
+    const month=parseInt(date[0]);
+    const day=parseInt(date[1]);
+    const year=parseInt(date[2]);
+    const dateObj=new Date(year, month-1, day);
+
+    db.query("INSERT INTO voter_of_day_data (name, image, timestamp, content, date_string) VALUES (?,?,?,?,?)", [data.name, data.image, dateObj.getTime(), data.content, dateObj.toDateString()], (err, result, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        res.send({code:"success"});
+
+    })
+
+})
+
 router.post("/select-vod", (req, res)=>{
     const data=req.body;
 

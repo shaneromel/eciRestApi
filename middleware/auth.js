@@ -26,7 +26,7 @@ module.exports=(req, res, next)=>{
 
     if(requestType==="Android"){
         
-        if(req.headers.package==="com.gadgetsfury.electionindia"){
+        if(req.headers.package===process.env.PACKAGE_NAME){
             next();
         }else{
             const congnitoToken=req.headers.token;

@@ -5,7 +5,7 @@ var db=require("../../utils/db");
 router.post("/add", (req, res)=>{
     const data=req.body;
 
-    db.query("INSERT INTO candidates (name,district,image,symbol) VALUES (?,?,?,?)", [data.name, data.district, data.image, data.symbol], (err, results, fields)=>{
+    db.query("INSERT INTO candidates (name,district,image,symbol,party) VALUES (?,?,?,?,?)", [data.name, data.district, data.image, data.symbol, data.party], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
