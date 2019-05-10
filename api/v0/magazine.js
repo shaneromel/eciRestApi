@@ -3,7 +3,7 @@ var router=express.Router();
 var db=require("../../utils/db");
 
 router.post("/", (req,res)=>{
-    const timestamp=Date.now();
+    const timestamp=req.body.date ? (new Date(req.body.date)).getTime() : Date.now();
 
     db.query("INSERT INTO magazines (pdf, timestamp, date_string) VALUES (?,?,?)", [req.body.pdf, timestamp, (new Date(timestamp)).toDateString()], (err, result, fields)=>{
         if(err){

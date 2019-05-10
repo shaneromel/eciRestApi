@@ -42,7 +42,7 @@ router.get("/", (req, res)=>{
 router.post("/", (req,res)=>{
     const data=req.body;
 
-    db.query("INSERT INTO ro_hall_of_fame(name, image, timestamp, content) VALUES (?,?,?,?)", [data.name, data.image, Date.now(), data.content], (err, results, fields)=>{
+    db.query("INSERT INTO ro_hall_of_fame(name, image, timestamp, content) VALUES (?,?,?,?)", [data.name, data.image, data.date ? (new Date(data.date)).getTime() : Date.now(), data.content], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
