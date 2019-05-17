@@ -81,13 +81,13 @@ router.post("/vod-admin", (req, res)=>{
 router.post("/select-vod", (req, res)=>{
     const data=req.body;
 
-    db.query("INSERT INTO selected_voter (id, date, date_string) VALUES (?,?,?)", [data.id, data.date, (new Date()).toDateString()], (err, results, fields)=>{
+    db.query("INSERT INTO selected_voter (id, date, date_string) VALUES (?,?,?)", [data.id, data.date, (new Date(data.date)).toDateString()], (err, results, fields)=>{
         if(err){
             res.send({code:"error", message:err.message});
             return;
         }
 
-        db.query("SELECT image,name FROM voter_of_day_data WHERE id = ?", [data.id], (err, results, fields)=>{
+        db.query("SELECT image,name,content FROM voter_of_day_data WHERE id = ?", [data.id], (err, results, fields)=>{
             if(err){
                 res.send({code:"error", message:err.message});
                 return;
@@ -230,6 +230,25 @@ router.get("/today-vod-submissions", (req, res)=>{
     })
 
 });
+
+router.get("/vod-selected/:date_string", (req, res)=>{
+    const dateString=req.param.date_string;
+
+    db.query("SELECT COUNT(*) FROM selected_voter WHERE date_string = ?", [dateString], (err, results, fields)=>{
+        if(err){
+            res.send({code:"error", message:err.message});
+            return;
+        }
+
+        if(results[0]["COUNT(*)"]>0){
+            res.send({code:true});
+        }else{
+            res.send({code:false});
+        }
+
+    })
+
+})
 
 router.get("/vod-selected-today", (req, res)=>{
     const date=(new Date()).toDateString();
