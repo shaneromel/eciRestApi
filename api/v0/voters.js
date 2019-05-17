@@ -87,7 +87,7 @@ router.post("/select-vod", (req, res)=>{
             return;
         }
 
-        db.query("SELECT image,name,content FROM voter_of_day_data WHERE id = ?", [data.id], (err, results, fields)=>{
+        db.query("SELECT image,name FROM voter_of_day_data WHERE id = ?", [data.id], (err, results, fields)=>{
             if(err){
                 res.send({code:"error", message:err.message});
                 return;
@@ -103,7 +103,7 @@ router.post("/select-vod", (req, res)=>{
                     const notificationData={
                         image:results[0].image,
                         title:results[0].name,
-                        message:results[0].content,
+                        message:"Voter of the day",
                         topic:"others"
                     };
 
@@ -231,8 +231,8 @@ router.get("/today-vod-submissions", (req, res)=>{
 
 });
 
-router.get("/vod-selected/:date_string", (req, res)=>{
-    const dateString=req.param.date_string;
+router.post("/vod-selected", (req, res)=>{
+    const dateString=req.body.date_string;
 
     db.query("SELECT COUNT(*) FROM selected_voter WHERE date_string = ?", [dateString], (err, results, fields)=>{
         if(err){
